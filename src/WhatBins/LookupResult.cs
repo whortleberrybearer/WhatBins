@@ -2,10 +2,10 @@
 {
     using System.Collections.Generic;
 
-    public class LookupResult
+    public struct LookupResult
     {
-        public CollectionState State { get; set; }
+        public CollectionState State { get; private set; }
 
-        public IEnumerable<Collection> Collections { get; set; }
+        public IEnumerable<Collection> Collections { get; private set; }
     }
 }
