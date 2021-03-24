@@ -6,7 +6,7 @@
     {
         public LookupResult Lookup(PostCode postCode)
         {
-            throw new NotImplementedException();
+            return new LookupResult();
         }
     }
 }
