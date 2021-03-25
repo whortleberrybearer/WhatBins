@@ -22,8 +22,7 @@
             {
                 result = collectionExtractor.Extract(postCode);
 
-                // If the result is unsupported, we have not found the correct council to check, so keep checking.  Otherwise
-                // we have found the correct council and can exit.
+                // If the result is unsupported, we have not found the correct extractor to check, so keep checking.
                 if (result.State != CollectionState.Unsupported)
                 {
                     break;

@@ -1,11 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace WhatBins.Extractors.ChorleyCouncil
+﻿namespace WhatBins.Extractors.ChorleyCouncil
 {
-    class Requestor
+    using RestSharp;
+    using System;
+    using WhatBins.Types;
+
+    public class Requestor : IRequestor
     {
+        private static readonly Uri BaseUri = new Uri("https://myaccount.chorley.gov.uk/wastecollections.aspx");
+        private IRestClient client;
+
+        public Requestor()
+            : this(new RestClient(BaseUri))
+        {
+        }
+
+        public Requestor(IRestClient client)
+        {
+            this.client = client ?? throw new ArgumentNullException(nameof(client));
+        }
+
+        public void DoRequest1(PostCode postCode)
+        {
+            IRestResponse response = this.client.Get(new RestRequest());
+            throw new NotImplementedException();
+        }
     }
 }
 
