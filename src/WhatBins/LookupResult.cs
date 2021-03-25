@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using WhatBins.Types;
 
     public struct LookupResult
     {
@@ -13,7 +14,7 @@
 
         public LookupResult(CollectionState state, IEnumerable<Collection> collections)
         {
-            this.Collections = collections.ToArray() ?? throw new ArgumentNullException(nameof(collections));
+            this.Collections = collections?.ToArray() ?? throw new ArgumentNullException(nameof(collections));
             this.State = state;
         }
 

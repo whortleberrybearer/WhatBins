@@ -1,5 +1,6 @@
 ﻿namespace WhatBins.UnitTests
 {
+    using Bogus;
     using FluentAssertions;
     using FluentAssertions.Execution;
     using System;
@@ -10,32 +11,34 @@
     {
         public class ConstructorTests
         {
-            [Theory]
-            [AutoMoqDomainData]
-            public void ShouldSetState(
-                CollectionState collectionState)
+            private Faker faker = new Faker();
+
+            [Fact]
+            public void ShouldSetState()
             {
+                CollectionState collectionState = this.faker.Random.Enum<CollectionState>();
+
                 LookupResult result = new LookupResult(collectionState);
 
                 result.State.Should().Be(collectionState);
             }
 
-            [Theory]
-            [AutoMoqDomainData]
-            public void ShouldThrowArgumentNullExceptionWhenCollectionsIsNull(
-                CollectionState collectionState)
+            [Fact]
+            public void ShouldThrowArgumentNullExceptionWhenCollectionsIsNull()
             {
+                CollectionState collectionState = this.faker.Random.Enum<CollectionState>();
+
                 Action a = () => new LookupResult(collectionState, null!);
 
                 a.Should().Throw<ArgumentNullException>();
             }
 
-            [Theory]
-            [AutoMoqDomainData]
-            public void ShouldSetCollections(
-                CollectionState collectionState,
-                IEnumerable<Collection> collections)
+            [Fact]
+            public void ShouldSetCollections()
             {
+                CollectionState collectionState = this.faker.Random.Enum<CollectionState>();
+                IEnumerable<Collection> collections = null;
+
                 LookupResult result = new LookupResult(collectionState, collections);
 
                 using (new AssertionScope())

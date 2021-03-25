@@ -1,4 +1,4 @@
-﻿namespace WhatBins
+﻿namespace WhatBins.Types
 {
     public struct PostCode
     {
@@ -9,5 +9,9 @@
         {
             this.value = value;
         }
+
+        public string Outcode { get; }  // First nit
+
+        public string Incode { get; } // Second bit
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace WhatBins
+﻿namespace WhatBins.Types
 {
     public enum BinColour
     {

@@ -9,8 +9,4 @@
     <PackageReference Include="NodaTime" Version="3.0.5" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\WhatBind.Types\WhatBind.Types.csproj" />
-  </ItemGroup>
-
 </Project>
