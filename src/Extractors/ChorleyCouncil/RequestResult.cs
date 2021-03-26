@@ -1,6 +1,5 @@
 ﻿namespace WhatBins.Extractors.ChorleyCouncil
 {
-    using System.Diagnostics.CodeAnalysis;
     using HtmlAgilityPack;
 
     public struct RequestResult

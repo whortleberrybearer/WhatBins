@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhatBins.IntegrationTests", "tests\WhatBins.IntegrationTests\WhatBins.IntegrationTests.csproj", "{1659653C-1CEE-44A2-924A-26BED50CE035}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BC2F0DFB-F919-4A05-BAB3-CE9D8CCC6295}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhatBins", "src\WhatBins\WhatBins.csproj", "{E28FC6ED-53FD-4DDB-AC96-D375FFC4619A}"
@@ -33,10 +31,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1659653C-1CEE-44A2-924A-26BED50CE035}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1659653C-1CEE-44A2-924A-26BED50CE035}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1659653C-1CEE-44A2-924A-26BED50CE035}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1659653C-1CEE-44A2-924A-26BED50CE035}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E28FC6ED-53FD-4DDB-AC96-D375FFC4619A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E28FC6ED-53FD-4DDB-AC96-D375FFC4619A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E28FC6ED-53FD-4DDB-AC96-D375FFC4619A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -70,7 +64,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{1659653C-1CEE-44A2-924A-26BED50CE035} = {BC2F0DFB-F919-4A05-BAB3-CE9D8CCC6295}
 		{E28FC6ED-53FD-4DDB-AC96-D375FFC4619A} = {E91FBDCC-40AB-47B7-926E-7974362B6E64}
 		{1C74B807-B8F4-474C-88E4-D77D7CFE64E1} = {BC2F0DFB-F919-4A05-BAB3-CE9D8CCC6295}
 		{E5AC5108-0CE2-469C-BA08-A2207674990A} = {2FB113E5-BC62-4FB7-A136-5E6A38D6AEEF}

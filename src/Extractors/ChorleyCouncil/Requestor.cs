@@ -1,7 +1,7 @@
 ﻿namespace WhatBins.Extractors.ChorleyCouncil
 {
-    using RestSharp;
     using System;
+    using RestSharp;
     using WhatBins.Types;
 
     public class Requestor : IRequestor
