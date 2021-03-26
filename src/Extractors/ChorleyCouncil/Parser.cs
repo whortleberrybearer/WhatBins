@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
     using HtmlAgilityPack;
     using NodaTime;
     using NodaTime.Text;
@@ -19,29 +21,49 @@
             { "Green%20Bin2", BinColour.Green }
         };
 
-        public bool IsSupported(string html)
+        // TODO: Should be is within boundart
+        public bool IsSupported(HtmlDocument htmlDocument)
         {
-            return !html.Contains("No addresses found within Chorley Council boundaries for this address.");
+            return !htmlDocument.Text.Contains("No addresses found within Chorley Council boundaries for this address.");
         }
 
-        public bool DoesDoCollections(string html)
+        public bool DoesDoCollections(HtmlDocument htmlDocument)
         {
-            return !html.Contains("Our records indicate that we don't collect waste from your property");
+            return !htmlDocument.Text.Contains("Our records indicate that we don't collect waste from your property");
         }
 
-        public object ExtractCollections(string html)
+        public RequestState ExtractRequestState(HtmlDocument htmlDocument)
         {
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(html);
+            return new RequestState(
+                htmlDocument.GetElementbyId("__VIEWSTATE").GetAttributeValue("value", string.Empty),
+                htmlDocument.GetElementbyId("__VIEWSTATEGENERATOR").GetAttributeValue("value", string.Empty),
+                htmlDocument.GetElementbyId("__EVENTVALIDATION").GetAttributeValue("value", string.Empty)
+            );
+        }
 
+        public Uprn ExtractUprn(HtmlDocument htmlDocument)
+        {
+            //HtmlDocument htmlDocument = new HtmlDocument();
+            //htmlDocument.LoadHtml(html);
+
+            // TODO: need to handle if this isnt avalire.  Taking a punt on the first value
+            //var selectedOption = htmlDocument.DocumentNode.SelectSingleNode(".//*[contains(@name, 'ctl00$MainContent$addressSearch$ddlAddress')]/option[2]");
+            //selectedOption.GetAttributeValue("value", string.Empty);
+
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Collection> ExtractCollections(HtmlDocument htmlDocument)
+        {
             List<Collection> collections = new List<Collection>();
 
-            foreach (HtmlNode rowNode in doc.DocumentNode.SelectNodes("/table/tbody/tr"))
+            // All the collections are stored in a table, with a month per row, then dates per column.
+            foreach (HtmlNode rowNode in htmlDocument.DocumentNode.SelectNodes("/table/tbody/tr"))
             {
                 collections.AddRange(this.ProcessMonthRow(rowNode));
             }
 
-            throw new NotImplementedException();
+            return collections;
         }
 
         private IEnumerable<Collection> ProcessMonthRow(HtmlNode rowNode)
@@ -49,77 +71,78 @@
             HtmlNode dateColumn = rowNode.SelectSingleNode("td[1]");
             ParseResult<LocalDate> monthParseResult = MonthPattern.Parse(dateColumn.InnerText);
 
-            if (monthParseResult.Success)
+            if (!monthParseResult.Success)
             {
-                foreach (HtmlNode columnNode in rowNode.SelectNodes("td[position()>1]"))
-                {
-                    this.ProcessDayColumn(columnNode, monthParseResult.Value);
-                }
-            }
-            else
-            {
-                // TODO: lof the failure.
+                // TODO: Log the failure.
+
+                // As we can not get the month, don't continue to parse the row.  It is likely that the rest of the table wont parse as well,
+                // resulting in no collections.
+                return Enumerable.Empty<Collection>();
             }
 
-            throw new NotImplementedException();
+            return this.ProcessDayColumns(rowNode.SelectNodes("td[position()>1]"), monthParseResult.Value);
         }
 
-        private void ProcessDayColumn(HtmlNode columnNode, LocalDate month)
+        private IEnumerable<Collection> ProcessDayColumns(HtmlNodeCollection dayColumnNodes, LocalDate monthDate)
         {
-            HtmlNode dayColumnNode = columnNode.SelectSingleNode("p");
+            List<Collection> collections = new List<Collection>();
 
-            if (dayColumnNode.InnerText.Trim() != string.Empty)
+            foreach (HtmlNode dayColumnNode in dayColumnNodes)
             {
-                if (int.TryParse(dayColumnNode.InnerText.Trim(), out int day))
+                // The date is stored on a separate paragraph, followed by the bin images.
+                HtmlNode dayTextNode = dayColumnNode.SelectSingleNode("p");
+
+                if (dayTextNode.InnerText.Trim() != string.Empty)
                 {
-                    // Need to subtract 1 from the day as the month will already be on the 1st.  So if you was 1, it would be setting it
-                    // to the 2nd of the month instead of the 1st without the subtract.
-                    LocalDate collectionDate = month.Plus(Period.FromDays(day - 1));
+                    if (int.TryParse(dayColumnNode.InnerText.Trim(), out int day))
+                    {
+                        // Need to subtract 1 from the day as the month will already be on the 1st.  So if you was 1, it would be setting it
+                        // to the 2nd of the month instead of the 1st without the subtract.
+                        LocalDate collectionDate = monthDate.Plus(Period.FromDays(day - 1));
+
+                        collections.Add(new Collection(collectionDate, this.ProcessDayColumn(dayColumnNode)));
+                    }
+                    else
+                    {
+                        // TODO: Date buggered, not a lot can do
+                        // TODO: Log failure to parse/
+                    }
                 }
                 else
                 {
-                    // TODO: Date buggered, not a lot can do
+                    // No more days for the month.
+                    break;
                 }
-
-            //                
-
-            //                var binImages = binDay.SelectNodes("table//td/img");
-
-            //                List<Bin> bins = new List<Bin>();
-
-            //                foreach (var binImage in binImages)
-            //                {
-            //                    var src = binImage.GetAttributeValue("src", string.Empty);
-
-            //                    var fileName = Path.GetFileNameWithoutExtension(src);
-
-            //                    if (fileName == Blue)
-            //                    {
-            //                        bins.Add(new Bin() { Colour = BinColour.Blue });
-            //                    }
-            //                    else if (fileName == Grey)
-            //                    {
-            //                        bins.Add(new Bin() { Colour = BinColour.Grey });
-            //                    }
-            //                    else if (fileName == Brown)
-            //                    {
-            //                        bins.Add(new Bin() { Colour = BinColour.Brown });
-            //                    }
-            //                    else if (fileName == Green)
-            //                    {
-            //                        bins.Add(new Bin() { Colour = BinColour.Green });
-            //                    }
-            //                }
-
-            //                things.Add(new thing() { Date = theBinDay, Bins = bins });
             }
-            else
+
+            return collections;
+        }
+
+        private IEnumerable<Bin> ProcessDayColumn(HtmlNode dayColumnNode)
+        {
+            List<Bin> bins = new List<Bin>();
+
+            // The bin image nodes are stored in a separate table.
+            foreach (var binImageNode in dayColumnNode.SelectNodes("table//td/img"))
             {
-                // No more days for the month.
-                break;
+                string imgSrc = binImageNode.GetAttributeValue("src", string.Empty);
+
+                if (imgSrc != string.Empty)
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(imgSrc);
+
+                    if (BinColourLookup.TryGetValue(fileName, out BinColour binColour))
+                    {
+                        bins.Add(new Bin(binColour));
+                    }
+                    else
+                    {
+                        // TODO: Log unknown colour.
+                    }
+                }
             }
 
-            throw new NotImplementedException();
+            return bins;
         }
     }
 }

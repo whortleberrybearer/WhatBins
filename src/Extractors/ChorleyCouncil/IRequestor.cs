@@ -1,9 +1,15 @@
-﻿using WhatBins.Types;
-
-namespace WhatBins.Extractors.ChorleyCouncil
+﻿namespace WhatBins.Extractors.ChorleyCouncil
 {
+    using WhatBins.Types;
+
     public interface IRequestor
     {
-        void DoRequest1(PostCode postCode);
+        RequestResult DoRequest1();
+
+        RequestResult DoRequest2(PostCode postCode, RequestState requestState);
+
+        RequestResult DoRequest3(Uprn uprn, RequestState requestState);
+
+        RequestResult DoRequest4(RequestState requestState);
     }
 }

@@ -2,6 +2,7 @@ namespace WhatBins.IntegrationTests
 {
     using FluentAssertions;
     using FluentAssertions.Execution;
+    using WhatBins.Types;
     using Xunit;
 
     // These tests call the live sites, so tests that expect data to be returned can only check there is data,
