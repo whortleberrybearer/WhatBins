@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\WhatBind.Types\WhatBind.Types.csproj" />
+    <ProjectReference Include="..\..\WhatBins.Types\WhatBins.Types.csproj" />
   </ItemGroup>
 
 </Project>
