@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Extractors\ChorleyCouncil\ChorleyCouncil.csproj" />
     <ProjectReference Include="..\..\src\WhatBins\WhatBins.csproj" />
   </ItemGroup>
 

@@ -2,6 +2,7 @@ namespace WhatBins.IntegrationTests
 {
     using FluentAssertions;
     using FluentAssertions.Execution;
+    using WhatBins.Extractors.ChorleyCouncil;
     using WhatBins.Types;
     using Xunit;
 
@@ -14,8 +15,12 @@ namespace WhatBins.IntegrationTests
             [Theory]
             [AutoMoqDomainData]
             public void ShouldReturnUnsupportedWhenPostCodeUnknown(
-                BinCollectionsFinder sut)
+                int i
+                //BinCollectionsFinder sut)
+                )
             {
+                BinCollectionsFinder sut = new BinCollectionsFinder(new ICollectionExtractor[] { new CollectionExtractor() });
+
                 PostCode postCode = new PostCode("SW1A 1AA");
 
                 LookupResult result = sut.Lookup(postCode);
