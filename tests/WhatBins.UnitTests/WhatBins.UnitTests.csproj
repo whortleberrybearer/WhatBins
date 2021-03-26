@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -8,9 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.15.0" />
-    <PackageReference Include="AutoFixture.AutoMoq" Version="4.15.0" />
-    <PackageReference Include="AutoFixture.Xunit2" Version="4.15.0" />
     <PackageReference Include="Bogus" Version="33.0.2" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="FluentAssertions.Analyzers" Version="0.11.4" />
@@ -29,10 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\WhatBins\WhatBins.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Fakes\" />
   </ItemGroup>
 
 </Project>

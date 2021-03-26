@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class Collection
+    public struct Collection
     {
         public Collection(LocalDate date, IEnumerable<Bin> bins)
         {

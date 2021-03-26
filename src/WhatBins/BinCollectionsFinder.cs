@@ -5,7 +5,7 @@
     using System.Linq;
     using WhatBins.Types;
 
-    public class BinCollectionsFinder
+    public class BinCollectionsFinder : IBinCollectionsFinder
     {
         private IEnumerable<ICollectionExtractor> collectionExtractors;
 
@@ -23,13 +23,13 @@
                 result = collectionExtractor.Extract(postCode);
 
                 // If the result is unsupported, we have not found the correct extractor to check, so keep checking.
-                if (result.State != CollectionState.Unsupported)
+                if (result.Value.State != CollectionState.Unsupported)
                 {
                     break;
                 }
             }
 
-            return result?.ToLookupResult() ?? new LookupResult(CollectionState.Unsupported);
+            return result.HasValue ? result.Value.ToLookupResult() : new LookupResult(CollectionState.Unsupported);
         }
     }
 }

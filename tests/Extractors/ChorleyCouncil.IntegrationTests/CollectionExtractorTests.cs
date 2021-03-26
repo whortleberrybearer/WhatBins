@@ -12,12 +12,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
     {
         public class LookupTests
         {
-            private CollectionExtractor sut;
-
-            public LookupTests()
-            {
-                this.sut = new CollectionExtractor();
-            }
+            private CollectionExtractor sut = new CollectionExtractor();
 
             [Theory]
             [InlineData("SW1A 1AA")]

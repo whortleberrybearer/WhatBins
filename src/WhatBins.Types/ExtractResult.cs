@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ExtractResult
+    public struct ExtractResult
     {
         public ExtractResult(CollectionState state)
             : this(state, Enumerable.Empty<Collection>())
