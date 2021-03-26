@@ -12,16 +12,19 @@ namespace WhatBins.IntegrationTests
     {
         public class LookupTests
         {
-            [Theory]
-            [AutoMoqDomainData]
-            public void ShouldReturnUnsupportedWhenPostCodeUnknown(
-                int i
-                //BinCollectionsFinder sut)
-                )
-            {
-                BinCollectionsFinder sut = new BinCollectionsFinder(new ICollectionExtractor[] { new CollectionExtractor() });
+            private BinCollectionsFinder sut;
 
-                PostCode postCode = new PostCode("SW1A 1AA");
+            public LookupTests()
+            {
+                this.sut = new BinCollectionsFinder(new ICollectionExtractor[] { new CollectionExtractor() });
+            }
+
+            [Theory]
+            [InlineData("SW1A 1AA")]
+            public void ShouldReturnUnsupportedWhenPostCodeUnknown(
+                string postCodeString)
+            {
+                PostCode postCode = new PostCode(postCodeString);
 
                 LookupResult result = sut.Lookup(postCode);
 
@@ -33,13 +36,11 @@ namespace WhatBins.IntegrationTests
             }
 
             [Theory]
-            [AutoMoqDomainData]
+            [InlineData("PR7 1DP")]
             public void ShouldReturnNoCollectionWhenNoBinsCollected(
-                BinCollectionsFinder sut)
+                string postCodeString)
             {
-                sut = new BinCollectionsFinder(new ICollectionExtractor[] { new CollectionExtractor() });
-
-                PostCode postCode = new PostCode("PR7 1DP");
+                PostCode postCode = new PostCode(postCodeString);
 
                 LookupResult result = sut.Lookup(postCode);
 
@@ -51,13 +52,11 @@ namespace WhatBins.IntegrationTests
             }
 
             [Theory]
-            [AutoMoqDomainData]
+            [InlineData("PR7 6PJ")]
             public void ShouldReturnCollectionDetailsWhenAvailable(
-                BinCollectionsFinder sut)
+                string postCodeString)
             {
-                sut = new BinCollectionsFinder(new ICollectionExtractor[] { new CollectionExtractor() });
-
-                PostCode postCode = new PostCode("PR7 6PJ");
+                PostCode postCode = new PostCode(postCodeString);
 
                 LookupResult result = sut.Lookup(postCode);
 
