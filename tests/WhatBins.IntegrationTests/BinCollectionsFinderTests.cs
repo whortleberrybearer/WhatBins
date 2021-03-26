@@ -37,6 +37,8 @@ namespace WhatBins.IntegrationTests
             public void ShouldReturnNoCollectionWhenNoBinsCollected(
                 BinCollectionsFinder sut)
             {
+                sut = new BinCollectionsFinder(new ICollectionExtractor[] { new CollectionExtractor() });
+
                 PostCode postCode = new PostCode("PR7 1DP");
 
                 LookupResult result = sut.Lookup(postCode);
@@ -53,6 +55,8 @@ namespace WhatBins.IntegrationTests
             public void ShouldReturnCollectionDetailsWhenAvailable(
                 BinCollectionsFinder sut)
             {
+                sut = new BinCollectionsFinder(new ICollectionExtractor[] { new CollectionExtractor() });
+
                 PostCode postCode = new PostCode("PR7 6PJ");
 
                 LookupResult result = sut.Lookup(postCode);

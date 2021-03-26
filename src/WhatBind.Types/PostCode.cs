@@ -17,6 +17,8 @@
             this.Incode = parts[1];
         }
 
+        public static implicit operator string(PostCode postCode) => postCode.value;
+
         public string Outcode { get; }  // First nit
 
         public string Incode { get; } // Second bit

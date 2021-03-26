@@ -29,7 +29,7 @@
             IRestRequest request = CreateAndPopulatePostRequest(requestState);
 
             // These additional parameters are required to identify what type the request is.
-            request.AddParameter("ctl00$MainContent$addressSearch$txtPostCodeLookup", postCode, ParameterType.GetOrPost);
+            request.AddParameter("ctl00$MainContent$addressSearch$txtPostCodeLookup", (string)postCode, ParameterType.GetOrPost);
             request.AddParameter("ctl00$MainContent$addressSearch$btnFindAddress", "Find Address", ParameterType.GetOrPost);
             request.AddParameter("ctl00$toastQueue", "");
 
@@ -40,7 +40,7 @@
         {
             IRestRequest request = CreateAndPopulatePostRequest(requestState, "ctl00$MainContent$addressSearch$ddlAddress");
 
-            request.AddParameter("ctl00$MainContent$addressSearch$ddlAddress", uprn, ParameterType.GetOrPost);
+            request.AddParameter("ctl00$MainContent$addressSearch$ddlAddress", (string)uprn, ParameterType.GetOrPost);
             request.AddParameter("ctl00$toastQueue", "");
 
             return CreateRequestResult(this.client.Post(request));

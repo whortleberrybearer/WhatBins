@@ -61,11 +61,6 @@
 
         private ExtractResult Continue3(HtmlDocument htmlDocument)
         {
-            if (!this.parser.DoesDoCollections(htmlDocument))
-            {
-                return new ExtractResult(CollectionState.NoCollection);
-            }
-
             RequestResult requestResult = this.requestor.DoRequest4(
                 this.parser.ExtractRequestState(htmlDocument));
 
@@ -74,6 +69,11 @@
 
         private ExtractResult Continue4(HtmlDocument htmlDocument)
         {
+            if (!this.parser.DoesDoCollections(htmlDocument))
+            {
+                return new ExtractResult(CollectionState.NoCollection);
+            }
+
             IEnumerable<Collection> collections = this.parser.ExtractCollections(htmlDocument);
 
             // It shouldn't happen, but id there are no collections returned, set the state as no collections.

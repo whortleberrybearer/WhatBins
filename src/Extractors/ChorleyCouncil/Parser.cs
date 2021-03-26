@@ -24,12 +24,12 @@
         // TODO: Should be is within boundart
         public bool IsSupported(HtmlDocument htmlDocument)
         {
-            return !htmlDocument.Text.Contains("No addresses found within Chorley Council boundaries for this address.");
+            return !htmlDocument.ParsedText.Contains("No addresses found within Chorley Council boundaries for this address.");
         }
 
         public bool DoesDoCollections(HtmlDocument htmlDocument)
         {
-            return !htmlDocument.Text.Contains("Our records indicate that we don't collect waste from your property");
+            return !htmlDocument.ParsedText.Contains("Our records indicate that we don't collect waste from your property");
         }
 
         public RequestState ExtractRequestState(HtmlDocument htmlDocument)
@@ -43,14 +43,10 @@
 
         public Uprn ExtractUprn(HtmlDocument htmlDocument)
         {
-            //HtmlDocument htmlDocument = new HtmlDocument();
-            //htmlDocument.LoadHtml(html);
-
             // TODO: need to handle if this isnt avalire.  Taking a punt on the first value
-            //var selectedOption = htmlDocument.DocumentNode.SelectSingleNode(".//*[contains(@name, 'ctl00$MainContent$addressSearch$ddlAddress')]/option[2]");
-            //selectedOption.GetAttributeValue("value", string.Empty);
-
-            throw new NotImplementedException();
+            HtmlNode selectedOption = htmlDocument.DocumentNode.SelectSingleNode(".//*[contains(@name, 'ctl00$MainContent$addressSearch$ddlAddress')]/option[2]");
+            
+            return new Uprn(selectedOption.GetAttributeValue("value", string.Empty));
         }
 
         public IEnumerable<Collection> ExtractCollections(HtmlDocument htmlDocument)
@@ -58,7 +54,7 @@
             List<Collection> collections = new List<Collection>();
 
             // All the collections are stored in a table, with a month per row, then dates per column.
-            foreach (HtmlNode rowNode in htmlDocument.DocumentNode.SelectNodes("/table/tbody/tr"))
+            foreach (HtmlNode rowNode in htmlDocument.DocumentNode.SelectNodes(".//table[contains(@class, \"WasteCollection\")]/tr"))
             {
                 collections.AddRange(this.ProcessMonthRow(rowNode));
             }
