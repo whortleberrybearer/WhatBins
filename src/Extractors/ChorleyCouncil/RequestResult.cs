@@ -1,5 +1,6 @@
 ﻿namespace WhatBins.Extractors.ChorleyCouncil
 {
+    using System;
     using HtmlAgilityPack;
 
     public struct RequestResult
@@ -27,6 +28,11 @@
 
         public static RequestResult Succeeded(string html)
         {
+            if (html is null)
+            {
+                throw new ArgumentNullException(nameof(html));
+            }
+
             return new RequestResult(true, html);
         }
     }
