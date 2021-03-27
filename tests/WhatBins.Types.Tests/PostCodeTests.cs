@@ -1,14 +1,34 @@
 ﻿namespace WhatBins.Types.Tests
 {
     using System;
+    using System.Collections.Generic;
     using FluentAssertions;
     using FluentAssertions.Execution;
     using Xunit;
 
     public class PostCodeTests
     {
+        public static IEnumerable<object[]> ValidPostCodes = new List<object[]>()
+            {
+                new object[] { "PR1 1AA" },
+                new object[] { "W1 1AA" },
+            };
+
         public class ConstructorTests
         {
+            public static IEnumerable<object[]> GetData()
+            {
+                var allData = new List<object[]>
+                {
+                    new object[] { 1, 2, 3 },
+                    new object[] { -4, -6, -10 },
+                    new object[] { -2, 2, 0 },
+                    new object[] { int.MinValue, -1, int.MaxValue },
+                };
+
+                return allData;
+            }
+
             [Fact]
             public void ShouldThrowArgumentNullWhenValueNull()
             {
@@ -28,8 +48,7 @@
             }
 
             [Theory]
-            [InlineData("", "")]
-            [InlineData("1W", "")]
+            [MemberData(nameof(GetData))]
             public void ShouldSetIncodeAndOutcode(string incode, string outcode)
             {
                 PostCode sut = new PostCode($"{incode} {outcode}");
@@ -45,8 +64,7 @@
         public class EqualsOperatorTests
         {
             [Theory]
-            [InlineData("PR1 1AA")]
-            [InlineData("W1 4RR")]
+            [MemberData(nameof(ValidPostCodes), MemberType = typeof(PostCodeTests))]
             public void ObjectsShouldBeEqual(string value)
             {
                 PostCode postCode1 = new PostCode(value);
@@ -74,8 +92,7 @@
         public class NotEqualsOperatorTests
         {
             [Theory]
-            [InlineData("")]
-            [InlineData("")]
+            [MemberData(nameof(ValidPostCodes), MemberType = typeof(PostCodeTests))]
             public void ObectsShouldBeNotEqual(string value)
             {
                 PostCode postCode1 = new PostCode(value);
@@ -103,8 +120,7 @@
         public class EqualsObjectTests
         {
             [Theory]
-            [InlineData("")]
-            [InlineData("")]
+            [MemberData(nameof(ValidPostCodes), MemberType = typeof(PostCodeTests))]
             public void ShouldBeTrueWhenMatchingObjects(string value)
             {
                 PostCode sut = new PostCode(value);
@@ -116,8 +132,7 @@
             }
 
             [Theory]
-            [InlineData("")]
-            [InlineData("")]
+            [MemberData(nameof(ValidPostCodes), MemberType = typeof(PostCodeTests))]
             public void ShouldBeFaleWhenNull(string value)
             {
                 PostCode sut = new PostCode(value);
@@ -128,8 +143,7 @@
             }
 
             [Theory]
-            [InlineData("")]
-            [InlineData("")]
+            [MemberData(nameof(ValidPostCodes), MemberType = typeof(PostCodeTests))]
             public void ShouldBeFaleWhenDifferentObject(string value)
             {
                 PostCode sut = new PostCode(value);
@@ -143,8 +157,7 @@
         public class StringOperatorTests
         {
             [Theory]
-            [InlineData("")]
-            [InlineData("")]
+            [MemberData(nameof(ValidPostCodes), MemberType = typeof(PostCodeTests))]
             public void ObjectShouldActLikeAString(string value)
             {
                 PostCode sut = new PostCode(value);
@@ -156,8 +169,7 @@
         public class ToStringTests
         {
             [Theory]
-            [InlineData("")]
-            [InlineData("")]
+            [MemberData(nameof(ValidPostCodes), MemberType = typeof(PostCodeTests))]
             public void ShouldReturnOriginalValue(string value)
             {
                 PostCode sut = new PostCode(value);
@@ -171,8 +183,7 @@
         public class GetHashCodeTests
         {
             [Theory]
-            [InlineData("")]
-            [InlineData("")]
+            [MemberData(nameof(ValidPostCodes), MemberType = typeof(PostCodeTests))]
             public void ShouldReturnOriginalValueHashCode(string value)
             {
                 PostCode sut = new PostCode(value);
