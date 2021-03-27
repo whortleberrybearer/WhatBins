@@ -1,12 +1,25 @@
-﻿
-namespace WhatBins.Types
+﻿namespace WhatBins.Types
 {
+    using System;
+    using System.Text.RegularExpressions;
+
     public struct Uprn
     {
+        private static readonly Regex uprnRegex = new Regex("UPRN\\d+");
         private readonly string value;
 
         public Uprn(string value)
         {
+            if (value is null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            if (!uprnRegex.IsMatch(value))
+            {
+                throw new ArgumentException("Invalid UPRN", nameof(value));
+            }
+
             this.value = value;
         }
 
