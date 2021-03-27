@@ -1,16 +1,14 @@
-﻿namespace WhatBins.Types
+﻿
+namespace WhatBins.Types
 {
     public struct PostCode
     {
-        private string value;
+        private readonly string value;
 
         public PostCode(string value)
-            : this()
         {
-            // TOCO CHeck if valid
             this.value = value;
 
-            
             string[] parts = this.value.Split(' ');
 
             this.Outcode = parts[0];
@@ -19,8 +17,44 @@
 
         public static implicit operator string(PostCode postCode) => postCode.value;
 
-        public string Outcode { get; }  // First nit
+        public static bool operator ==(PostCode left, PostCode right)
+        {
+            return left.Equals(right);
+        }
 
-        public string Incode { get; } // Second bit
+        public static bool operator !=(PostCode left, PostCode right)
+        {
+            return !(left == right);
+        }
+
+
+        public string Outcode { get; }
+
+        public string Incode { get; }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is PostCode postCode)
+            {
+                return this.Equals(postCode);
+            }
+
+            return this.value.Equals(obj);
+        }
+
+        public bool Equals(PostCode other)
+        {
+            return this.value.Equals(other.value);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.value.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return this.value.ToString();
+        }
     }
 }
