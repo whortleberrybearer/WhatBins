@@ -42,7 +42,7 @@ namespace WhatBins.Tests
 
                 LookupResult result = this.sut.Lookup(postCode);
 
-                result.Should().Be(new LookupResult(CollectionState.Unsupported));
+                result.Should().BeEquivalentTo(new LookupResult(CollectionState.Unsupported));
             }
 
             [Fact]
@@ -63,7 +63,7 @@ namespace WhatBins.Tests
 
                 LookupResult result = this.sut.Lookup(postCode);
 
-                result.Should().Be(new LookupResult(CollectionState.Unsupported));
+                result.Should().BeEquivalentTo(new LookupResult(CollectionState.Unsupported));
 
                 this.mockRepository.VerifyAll();
             }
@@ -95,9 +95,7 @@ namespace WhatBins.Tests
 
                 LookupResult result = this.sut.Lookup(postCode);
 
-                result.Should().Be(new LookupResult(collectionState, collections));
-
-                this.mockRepository.VerifyAll();
+                result.Should().BeEquivalentTo(new LookupResult(collectionState, collections));
             }
         }
     }

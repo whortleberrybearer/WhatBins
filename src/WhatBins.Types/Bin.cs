@@ -1,6 +1,6 @@
 ﻿namespace WhatBins.Types
 {
-    public struct Bin
+    public class Bin
     {
         public Bin(BinColour colour)
         {
