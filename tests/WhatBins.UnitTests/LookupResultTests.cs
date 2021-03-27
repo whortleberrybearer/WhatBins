@@ -20,7 +20,11 @@
 
                 LookupResult result = new LookupResult(collectionState);
 
-                result.State.Should().Be(collectionState);
+                using (new AssertionScope())
+                {
+                    result.State.Should().Be(collectionState);
+                    result.Collections.Should().BeEmpty();
+                }
             }
 
             [Fact]

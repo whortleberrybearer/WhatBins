@@ -1,7 +1,7 @@
-﻿using WhatBins.Types;
-
-namespace WhatBins
+﻿namespace WhatBins
 {
+    using WhatBins.Types;
+
     public interface IBinCollectionsFinder
     {
         LookupResult Lookup(PostCode postCode);
