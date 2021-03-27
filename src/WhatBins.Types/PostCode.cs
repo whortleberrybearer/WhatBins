@@ -1,12 +1,25 @@
-﻿
-namespace WhatBins.Types
+﻿namespace WhatBins.Types
 {
+    using System;
+    using System.Text.RegularExpressions;
+
     public struct PostCode
     {
+        private static readonly Regex postCodeSomething = new Regex("([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\\s?[0-9][A-Za-z]{2})");
         private readonly string value;
 
         public PostCode(string value)
         {
+            if (value is null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            if (!postCodeSomething.IsMatch(value))
+            {
+                throw new ArgumentException("Invalid postcode", nameof(value));
+            }
+
             this.value = value;
 
             string[] parts = this.value.Split(' ');

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using FluentAssertions;
     using FluentAssertions.Execution;
     using Xunit;
@@ -14,19 +15,16 @@
                 new object[] { "W1 1AA" },
             };
 
+        public static IEnumerable<object[]> GenerateNonEqualPostCodes()
+        {
+            return ValidPostCodes.Skip(1).Select((postCode, i) => new object[] { postCode[0], ValidPostCodes.ElementAt(i)[0] });
+        }
+
         public class ConstructorTests
         {
-            public static IEnumerable<object[]> GetData()
+            public static IEnumerable<object[]> SplitValidPostCodes()
             {
-                var allData = new List<object[]>
-                {
-                    new object[] { 1, 2, 3 },
-                    new object[] { -4, -6, -10 },
-                    new object[] { -2, 2, 0 },
-                    new object[] { int.MinValue, -1, int.MaxValue },
-                };
-
-                return allData;
+                return ValidPostCodes.Select(postCode => ((string)postCode[0]).Split(' '));
             }
 
             [Fact]
@@ -48,10 +46,10 @@
             }
 
             [Theory]
-            [MemberData(nameof(GetData))]
-            public void ShouldSetIncodeAndOutcode(string incode, string outcode)
+            [MemberData(nameof(SplitValidPostCodes))]
+            public void ShouldSetIncodeAndOutcode(string outcode, string incode)
             {
-                PostCode sut = new PostCode($"{incode} {outcode}");
+                PostCode sut = new PostCode($"{outcode} {incode}");
 
                 using (new AssertionScope())
                 {
@@ -76,9 +74,8 @@
             }
 
             [Theory]
-            [InlineData("", "")]
-            [InlineData("", "")]
-            public void ObjectssShouldNotBeEqual(string value1, string value2)
+            [MemberData(nameof(GenerateNonEqualPostCodes), MemberType = typeof(PostCodeTests))]
+            public void ObjectsShouldNotBeEqual(string value1, string value2)
             {
                 PostCode postCode1 = new PostCode(value1);
                 PostCode postCode2 = new PostCode(value2);
@@ -104,8 +101,7 @@
             }
 
             [Theory]
-            [InlineData("", "")]
-            [InlineData("", "")]
+            [MemberData(nameof(GenerateNonEqualPostCodes), MemberType = typeof(PostCodeTests))]
             public void ObjectsShouldNotBeEqual(string value1, string value2)
             {
                 PostCode postCode1 = new PostCode(value1);
