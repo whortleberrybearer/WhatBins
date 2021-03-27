@@ -3,7 +3,7 @@
     using System;
     using HtmlAgilityPack;
 
-    public struct RequestResult
+    public class RequestResult
     {
         private RequestResult(bool success, string? html = null)
         {

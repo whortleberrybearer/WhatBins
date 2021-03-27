@@ -4,12 +4,12 @@
 
     public interface IRequestor
     {
-        RequestResult DoRequest1();
+        RequestResult RequestCollectionsPage();
 
-        RequestResult DoRequest2(PostCode postCode, RequestState requestState);
+        RequestResult RequestPostCodeLookup(PostCode postCode, RequestState requestState);
 
-        RequestResult DoRequest3(Uprn uprn, RequestState requestState);
+        RequestResult RequestUprnLookup(Uprn uprn, RequestState requestState);
 
-        RequestResult DoRequest4(RequestState requestState);
+        RequestResult RequestCollectionsLookup(RequestState requestState);
     }
 }

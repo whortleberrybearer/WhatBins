@@ -19,12 +19,12 @@
             this.client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        public RequestResult DoRequest1()
+        public RequestResult RequestCollectionsPage()
         {
             return CreateRequestResult(this.client.Get(new RestRequest(Method.GET)));
         }
 
-        public RequestResult DoRequest2(PostCode postCode, RequestState requestState)
+        public RequestResult RequestPostCodeLookup(PostCode postCode, RequestState requestState)
         {
             IRestRequest request = CreateAndPopulatePostRequest(requestState);
 
@@ -36,7 +36,7 @@
             return CreateRequestResult(this.client.Post(request));
         }
 
-        public RequestResult DoRequest3(Uprn uprn, RequestState requestState)
+        public RequestResult RequestUprnLookup(Uprn uprn, RequestState requestState)
         {
             IRestRequest request = CreateAndPopulatePostRequest(requestState, "ctl00$MainContent$addressSearch$ddlAddress");
 
@@ -46,7 +46,7 @@
             return CreateRequestResult(this.client.Post(request));
         }
 
-        public RequestResult DoRequest4(RequestState requestState)
+        public RequestResult RequestCollectionsLookup(RequestState requestState)
         {
             IRestRequest request = CreateAndPopulatePostRequest(requestState);
 

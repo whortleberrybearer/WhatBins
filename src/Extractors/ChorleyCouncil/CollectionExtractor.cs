@@ -30,14 +30,14 @@
 
         public ExtractResult Extract(PostCode postCode)
         {
-            RequestResult requestResult = this.requestor.DoRequest1();
+            RequestResult requestResult = this.requestor.RequestCollectionsPage();
 
             return Something(requestResult) ?? this.Continue1(postCode, requestResult.HtmlDocument!);
         }
 
         private ExtractResult Continue1(PostCode postCode, HtmlDocument htmlDocument)
         {
-            RequestResult requestResult = this.requestor.DoRequest2(
+            RequestResult requestResult = this.requestor.RequestPostCodeLookup(
                 postCode,
                 this.parser.ExtractRequestState(htmlDocument));
 
@@ -52,7 +52,7 @@
                 return new ExtractResult(CollectionState.Unsupported);
             }
 
-            RequestResult requestResult = this.requestor.DoRequest3(
+            RequestResult requestResult = this.requestor.RequestUprnLookup(
                 this.parser.ExtractUprn(htmlDocument),
                 this.parser.ExtractRequestState(htmlDocument));
 
@@ -61,7 +61,7 @@
 
         private ExtractResult Continue3(HtmlDocument htmlDocument)
         {
-            RequestResult requestResult = this.requestor.DoRequest4(
+            RequestResult requestResult = this.requestor.RequestCollectionsLookup(
                 this.parser.ExtractRequestState(htmlDocument));
 
             return Something(requestResult) ?? this.Continue4(requestResult.HtmlDocument!);
