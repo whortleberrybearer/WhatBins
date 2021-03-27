@@ -1,4 +1,4 @@
-namespace WhatBins.UnitTests
+namespace WhatBins.Tests
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -6,7 +6,7 @@ namespace WhatBins.UnitTests
     using FluentAssertions;
     using Moq;
     using WhatBins.Types;
-    using WhatBins.UnitTests.Fakes;
+    using WhatBins.Tests.Fakes;
     using Xunit;
 
     public class BinCollectionsFinderTests

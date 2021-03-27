@@ -1,4 +1,4 @@
-﻿namespace WhatBins.UnitTests.Fakes
+﻿namespace WhatBins.Tests.Fakes
 {
     using Bogus;
     using System.Collections.Generic;

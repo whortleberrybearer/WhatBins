@@ -1,8 +1,8 @@
-﻿namespace WhatBins.UnitTests
+﻿namespace WhatBins.Tests
 {
     using FluentAssertions;
     using WhatBins.Types;
-    using WhatBins.UnitTests.Fakes;
+    using WhatBins.Tests.Fakes;
     using Xunit;
 
     public class ExtractResultExtensionsTests

@@ -1,4 +1,4 @@
-﻿namespace WhatBins.UnitTests
+﻿namespace WhatBins.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@
     using FluentAssertions;
     using FluentAssertions.Execution;
     using WhatBins.Types;
-    using WhatBins.UnitTests.Fakes;
+    using WhatBins.Tests.Fakes;
     using Xunit;
 
     public class LookupResultTests
