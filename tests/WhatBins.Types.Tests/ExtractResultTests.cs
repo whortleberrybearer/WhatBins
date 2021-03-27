@@ -1,15 +1,15 @@
-﻿namespace WhatBins.Tests
+﻿namespace WhatBins.Types.Tests
 {
     using System;
     using System.Collections.Generic;
     using Bogus;
     using FluentAssertions;
     using FluentAssertions.Execution;
-    using WhatBins.Types.Fakes;
     using WhatBins.Types;
+    using WhatBins.Types.Fakes;
     using Xunit;
 
-    public class LookupResultTests
+    public class ExtractResultTests
     {
         public class ConstructorTests
         {
@@ -18,7 +18,7 @@
             {
                 CollectionState collectionState = new CollectionStateFaker().Generate();
 
-                LookupResult result = new LookupResult(collectionState);
+                ExtractResult result = new ExtractResult(collectionState);
 
                 using (new AssertionScope())
                 {
@@ -32,7 +32,7 @@
             {
                 CollectionState collectionState = new CollectionStateFaker().Generate();
 
-                Action a = () => new LookupResult(collectionState, null!);
+                Action a = () => new ExtractResult(collectionState, null!);
 
                 a.Should().Throw<ArgumentNullException>();
             }
@@ -43,7 +43,7 @@
                 CollectionState collectionState = new CollectionStateFaker().Generate();
                 IEnumerable<Collection> collections = new CollectionFaker().Generate(new Faker().Random.Number(1, 5));
 
-                LookupResult result = new LookupResult(collectionState, collections);
+                ExtractResult result = new ExtractResult(collectionState, collections);
 
                 using (new AssertionScope())
                 {

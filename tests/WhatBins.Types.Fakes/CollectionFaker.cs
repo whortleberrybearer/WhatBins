@@ -1,4 +1,4 @@
-﻿namespace WhatBins.Tests.Fakes
+﻿namespace WhatBins.Types.Fakes
 {
     using Bogus;
     using NodaTime;

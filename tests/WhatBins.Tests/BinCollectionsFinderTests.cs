@@ -5,8 +5,8 @@ namespace WhatBins.Tests
     using Bogus;
     using FluentAssertions;
     using Moq;
+    using WhatBins.Types.Fakes;
     using WhatBins.Types;
-    using WhatBins.Tests.Fakes;
     using Xunit;
 
     public class BinCollectionsFinderTests

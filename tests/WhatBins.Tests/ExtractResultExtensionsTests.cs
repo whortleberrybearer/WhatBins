@@ -2,7 +2,7 @@
 {
     using FluentAssertions;
     using WhatBins.Types;
-    using WhatBins.Tests.Fakes;
+    using WhatBins.Types.Fakes;
     using Xunit;
 
     public class ExtractResultExtensionsTests

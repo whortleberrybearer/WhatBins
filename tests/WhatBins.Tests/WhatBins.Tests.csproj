@@ -28,6 +28,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\WhatBins\WhatBins.csproj" />
+    <ProjectReference Include="..\WhatBins.Types.Fakes\WhatBins.Types.Fakes.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Fakes\" />
   </ItemGroup>
 
 </Project>
