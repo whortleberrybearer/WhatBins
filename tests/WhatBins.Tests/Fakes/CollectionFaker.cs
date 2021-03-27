@@ -2,26 +2,19 @@
 {
     using Bogus;
     using NodaTime;
-    using System.Collections.Generic;
     using WhatBins.Types;
 
-    public class CollectionFaker
+    public class CollectionFaker : Faker<Collection>
     {
-        private readonly Faker faker = new Faker();
         private readonly BinFaker binFaker = new BinFaker();
 
-        public IEnumerable<Collection> Generate(int count)
+        public CollectionFaker()
         {
-            List<Collection> collections = new List<Collection>();
+            this.StrictMode(true);
 
-            for (int i = 0; i < count; i++)
-            {
-                collections.Add(new Collection(
-                    LocalDate.FromDateTime(this.faker.Date.Soon()),
-                    this.binFaker.Generate(this.faker.Random.Number(1, 5))));
-            }
+            this.CustomInstantiator(faker => new Collection(LocalDate.FromDateTime(faker.Date.Soon()), this.binFaker.Generate(3)));
 
-            return collections;
+            this.AssertConfigurationIsValid();
         }
     }
 }

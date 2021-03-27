@@ -3,16 +3,28 @@
     using Bogus;
     using WhatBins.Types;
 
-    public class ExtractResultFaker
+    public class ExtractResultFaker : Faker<ExtractResult>
     {
-        private readonly Faker faker = new Faker();
+        private readonly CollectionStateFaker collectionStateFaker = new CollectionStateFaker();
         private readonly CollectionFaker collectionFaker = new CollectionFaker();
 
-        public ExtractResult Generate()
+        public ExtractResultFaker()
         {
-            return new ExtractResult(
-                this.faker.Random.Enum<CollectionState>(),
-                this.collectionFaker.Generate(this.faker.Random.Number(1, 5)));
+            this.StrictMode(true);
+
+            this.CustomInstantiator(faker =>
+            {
+                CollectionState collectionState = this.collectionStateFaker.Generate();
+
+                if (collectionState != CollectionState.Collection)
+                {
+                    return new ExtractResult(collectionState);
+                }
+
+                return new ExtractResult(collectionState, this.collectionFaker.Generate(3));
+            });
+
+            this.AssertConfigurationIsValid();
         }
     }
 }

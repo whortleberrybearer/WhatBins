@@ -1,23 +1,17 @@
 ﻿namespace WhatBins.Tests.Fakes
 {
     using Bogus;
-    using System.Collections.Generic;
     using WhatBins.Types;
 
-    public class BinFaker
+    public class BinFaker : Faker<Bin>
     {
-        private readonly Faker faker = new Faker();
-
-        public IEnumerable<Bin> Generate(int count)
+        public BinFaker()
         {
-            List<Bin> bins = new List<Bin>();
+            this.StrictMode(true);
 
-            for (int i = 0; i < count; i++)
-            {
-                bins.Add(new Bin(this.faker.Random.Enum<BinColour>()));
-            }
+            this.CustomInstantiator(faker => new Bin(faker.Random.Enum<BinColour>()));
 
-            return bins;
+            this.AssertConfigurationIsValid();
         }
     }
 }
