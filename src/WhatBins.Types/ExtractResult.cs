@@ -20,40 +20,5 @@
         public CollectionState State { get; }
 
         public IEnumerable<Collection> Collections { get; }
-
-        //public static bool operator ==(ExtractResult left, ExtractResult right)
-        //{
-        //    return left.Equals(right);
-        //}
-
-        //public static bool operator !=(ExtractResult left, ExtractResult right)
-        //{
-        //    return !(left == right);
-        //}
-
-        //public override bool Equals(object? obj)
-        //{
-        //    if (obj is ExtractResult extractResult)
-        //    {
-        //        return this.Equals(extractResult);
-        //    }
-
-        //    return false;
-        //}
-
-        //public bool Equals(ExtractResult other)
-        //{
-        //    return (this.State == other.State) && this.Collections.SequenceEqual(other.Collections);
-        //}
-
-        //public override int GetHashCode()
-        //{
-        //    return (this.State, this.Collections).GetHashCode();
-        //}
-
-        //public override string ToString()
-        //{
-        //    return this.State.ToString();
-        //}
     }
 }
