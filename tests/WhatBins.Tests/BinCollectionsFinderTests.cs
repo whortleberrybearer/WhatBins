@@ -71,8 +71,7 @@ namespace WhatBins.Tests
             [Theory]
             [InlineData(CollectionState.Collection)]
             [InlineData(CollectionState.NoCollection)]
-            public void ShouldReturnResultWhenSupportedCollectionFound(
-                CollectionState collectionState)
+            public void ShouldReturnResultWhenSupportedCollectionFound(CollectionState collectionState)
             {
                 PostCode postCode = new PostCodeFaker().Generate();
                 IEnumerable<Collection> collections = new CollectionFaker().Generate(new Faker().Random.Number(1, 5));
