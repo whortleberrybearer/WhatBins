@@ -1,5 +1,6 @@
 namespace WhatBins.Tests
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Bogus;
@@ -11,6 +12,17 @@ namespace WhatBins.Tests
 
     public class BinCollectionsFinderTests
     {
+        public class ConstructorTests
+        {
+            [Fact]
+            public void ShouldThrowArgumentNullExceptionWhenCollectionExtractorsIsNull()
+            {
+                Action a = () => new BinCollectionsFinder(null!);
+
+                a.Should().Throw<ArgumentNullException>();
+            }
+        }
+
         public class LookupTests
         {
             private readonly MockRepository mockRepository = new MockRepository(MockBehavior.Strict);

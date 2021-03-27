@@ -9,7 +9,7 @@
     {
         public Collection(LocalDate date, IEnumerable<Bin> bins)
         {
-            this.Bins = bins?.ToList()?.AsReadOnly() ?? throw new ArgumentNullException(nameof(bins));
+            this.Bins = bins?.ToList().AsReadOnly() ?? throw new ArgumentNullException(nameof(bins));
             this.Date = date;
         }
 

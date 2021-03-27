@@ -14,7 +14,7 @@
 
         public LookupResult(CollectionState state, IEnumerable<Collection> collections)
         {
-            this.Collections = collections?.ToList()?.AsReadOnly() ?? throw new ArgumentNullException(nameof(collections));
+            this.Collections = collections?.ToList().AsReadOnly() ?? throw new ArgumentNullException(nameof(collections));
             this.State = state;
         }
 

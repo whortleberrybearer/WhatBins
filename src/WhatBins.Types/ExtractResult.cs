@@ -13,7 +13,7 @@
 
         public ExtractResult(CollectionState state, IEnumerable<Collection> collections)
         {
-            Collections = collections?.ToList()?.AsReadOnly() ?? throw new ArgumentNullException(nameof(collections));
+            Collections = collections?.ToList().AsReadOnly() ?? throw new ArgumentNullException(nameof(collections));
             State = state;
         }
 
