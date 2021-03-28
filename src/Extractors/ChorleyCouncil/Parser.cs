@@ -10,7 +10,7 @@
     using WhatBins.Types;
 
     // TODO: probably an extractor
-    class Parser : IParser
+    public class Parser : IParser
     {
         private static readonly LocalDatePattern MonthPattern = LocalDatePattern.CreateWithInvariantCulture("MMMM yyyy");
         private static IDictionary<string, BinColour> BinColourLookup = new Dictionary<string, BinColour>()
@@ -24,16 +24,31 @@
         // TODO: Should be is within boundart
         public bool IsSupported(HtmlDocument htmlDocument)
         {
+            if (htmlDocument is null)
+            {
+                throw new ArgumentNullException(nameof(htmlDocument));
+            }
+
             return !htmlDocument.ParsedText.Contains("No addresses found within Chorley Council boundaries for this address.");
         }
 
         public bool DoesDoCollections(HtmlDocument htmlDocument)
         {
+            if (htmlDocument is null)
+            {
+                throw new ArgumentNullException(nameof(htmlDocument));
+            }
+
             return !htmlDocument.ParsedText.Contains("Our records indicate that we don't collect waste from your property");
         }
 
         public RequestState ExtractRequestState(HtmlDocument htmlDocument)
         {
+            if (htmlDocument is null)
+            {
+                throw new ArgumentNullException(nameof(htmlDocument));
+            }
+
             return new RequestState(
                 htmlDocument.GetElementbyId("__VIEWSTATE").GetAttributeValue("value", string.Empty),
                 htmlDocument.GetElementbyId("__VIEWSTATEGENERATOR").GetAttributeValue("value", string.Empty),
@@ -43,6 +58,11 @@
 
         public Uprn ExtractUprn(HtmlDocument htmlDocument)
         {
+            if (htmlDocument is null)
+            {
+                throw new ArgumentNullException(nameof(htmlDocument));
+            }
+
             // TODO: need to handle if this isnt avalire.  Taking a punt on the first value
             HtmlNode selectedOption = htmlDocument.DocumentNode.SelectSingleNode(".//*[contains(@name, 'ctl00$MainContent$addressSearch$ddlAddress')]/option[2]");
 
@@ -51,6 +71,11 @@
 
         public IEnumerable<Collection> ExtractCollections(HtmlDocument htmlDocument)
         {
+            if (htmlDocument is null)
+            {
+                throw new ArgumentNullException(nameof(htmlDocument));
+            }
+
             List<Collection> collections = new List<Collection>();
 
             // All the collections are stored in a table, with a month per row, then dates per column.
