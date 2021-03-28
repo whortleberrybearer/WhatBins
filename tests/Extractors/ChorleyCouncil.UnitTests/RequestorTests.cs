@@ -1,6 +1,8 @@
 ﻿namespace WhatBins.Extractors.ChorleyCouncil.UnitTests
 {
     using System;
+    using System.Net;
+    using Bogus;
     using FluentAssertions;
     using Moq;
     using RestSharp;
@@ -16,7 +18,19 @@
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenClientIsNull()
             {
-                Action a = () => new Requestor(null!);
+                Mock<IRequestBuilder> requestBuilderMock = new Mock<IRequestBuilder>();
+
+                Action a = () => new Requestor(null!, requestBuilderMock.Object);
+
+                a.Should().Throw<ArgumentNullException>();
+            }
+
+            [Fact]
+            public void ShouldThrowArgumentNullExceptionWhenRequestBuilderIsNull()
+            {
+                Mock<IRestClient> clientMock = new Mock<IRestClient>();
+
+                Action a = () => new Requestor(clientMock.Object, null!);
 
                 a.Should().Throw<ArgumentNullException>();
             }
@@ -26,25 +40,49 @@
         {
             private readonly MockRepository mockRepository;
             private readonly Mock<IRestClient> restClientMock;
+            private readonly Mock<IRequestBuilder> requestBuilderMock;
             private readonly Requestor sut;
 
             public RequestCollectionsPageTests()
             {
                 this.mockRepository = new MockRepository(MockBehavior.Strict);
                 this.restClientMock = this.mockRepository.Create<IRestClient>();
-                this.sut = new Requestor(this.restClientMock.Object);
+                this.requestBuilderMock = this.mockRepository.Create<IRequestBuilder>();
+                this.sut = new Requestor(this.restClientMock.Object, this.requestBuilderMock.Object);
             }
 
             [Fact]
             public void ShouldReturnRequestFailedWhenRequestFails()
             {
-                restClientMock
-                    .Setup(client => client.Execute(It.IsAny<RestRequest>(), Method.GET))
-                    .Returns(new RestResponse());
+                SetupMocks(CreateFailedResponse());
 
                 RequestResult result = this.sut.RequestCollectionsPage();
 
                 result.Should().BeEquivalentTo(RequestResult.Failed);
+            }
+
+            [Fact]
+            public void ShouldReturnRequestFailedWhenRequestFails1()
+            {
+                string html = new Faker().Random.String();
+
+                SetupMocks(CreateOkResponse(html));
+
+                RequestResult result = this.sut.RequestCollectionsPage();
+
+                ValidateSucceededResult(html, result);
+            }
+
+            private void SetupMocks(IRestResponse response)
+            {
+                IRestRequest request = new RestRequest();
+
+                this.requestBuilderMock
+                    .Setup(builder => builder.BuildCollectionsPageRequest())
+                    .Returns(request);
+                this.restClientMock
+                    .Setup(client => client.Execute(request, Method.GET))
+                    .Returns(response);
             }
         }
 
@@ -52,13 +90,15 @@
         {
             private readonly MockRepository mockRepository;
             private readonly Mock<IRestClient> restClientMock;
+            private readonly Mock<IRequestBuilder> requestBuilderMock;
             private readonly Requestor sut;
 
             public RequestPostCodeLookupTests()
             {
                 this.mockRepository = new MockRepository(MockBehavior.Strict);
                 this.restClientMock = this.mockRepository.Create<IRestClient>();
-                this.sut = new Requestor(this.restClientMock.Object);
+                this.requestBuilderMock = this.mockRepository.Create<IRequestBuilder>();
+                this.sut = new Requestor(this.restClientMock.Object, this.requestBuilderMock.Object);
             }
 
             [Fact]
@@ -67,13 +107,37 @@
                 PostCode postCode = new PostCodeFaker().Generate();
                 RequestState requestState = new RequestStateFaker().Generate();
 
-                restClientMock
-                    .Setup(client => client.Execute(It.IsAny<RestRequest>(), Method.POST))
-                    .Returns(new RestResponse());
+                SetupMocks(postCode, requestState, CreateFailedResponse());
 
                 RequestResult result = this.sut.RequestPostCodeLookup(postCode, requestState);
 
                 result.Should().BeEquivalentTo(RequestResult.Failed);
+            }
+
+            [Fact]
+            public void ShouldReturnRequestFailedWhenRequestFails1()
+            {
+                string html = new Faker().Random.String();
+                PostCode postCode = new PostCodeFaker().Generate();
+                RequestState requestState = new RequestStateFaker().Generate();
+
+                SetupMocks(postCode, requestState, CreateOkResponse(html));
+
+                RequestResult result = this.sut.RequestPostCodeLookup(postCode, requestState);
+
+                ValidateSucceededResult(html, result);
+            }
+
+            private void SetupMocks(PostCode postCode, RequestState requestState, IRestResponse response)
+            {
+                IRestRequest request = new RestRequest();
+
+                this.requestBuilderMock
+                    .Setup(builder => builder.BuildPostCodeLookupRequest(postCode, requestState))
+                    .Returns(request);
+                this.restClientMock
+                    .Setup(client => client.Execute(request, Method.POST))
+                    .Returns(response);
             }
         }
 
@@ -81,13 +145,15 @@
         {
             private readonly MockRepository mockRepository;
             private readonly Mock<IRestClient> restClientMock;
+            private readonly Mock<IRequestBuilder> requestBuilderMock;
             private readonly Requestor sut;
 
             public RequestUprnLookupTests()
             {
                 this.mockRepository = new MockRepository(MockBehavior.Strict);
                 this.restClientMock = this.mockRepository.Create<IRestClient>();
-                this.sut = new Requestor(this.restClientMock.Object);
+                this.requestBuilderMock = this.mockRepository.Create<IRequestBuilder>();
+                this.sut = new Requestor(this.restClientMock.Object, this.requestBuilderMock.Object);
             }
 
             [Fact]
@@ -96,13 +162,37 @@
                 Uprn uprn = new UprnFaker().Generate();
                 RequestState requestState = new RequestStateFaker().Generate();
 
-                restClientMock
-                    .Setup(client => client.Execute(It.IsAny<RestRequest>(), Method.POST))
-                    .Returns(new RestResponse());
+                SetupMocks(uprn, requestState, CreateFailedResponse());
 
                 RequestResult result = this.sut.RequestUprnLookup(uprn, requestState);
 
                 result.Should().BeEquivalentTo(RequestResult.Failed);
+            }
+
+            [Fact]
+            public void ShouldReturnRequestFailedWhenRequestFails1()
+            {
+                string html = new Faker().Random.String();
+                Uprn uprn = new UprnFaker().Generate();
+                RequestState requestState = new RequestStateFaker().Generate();
+
+                SetupMocks(uprn, requestState, CreateOkResponse(html));
+
+                RequestResult result = this.sut.RequestUprnLookup(uprn, requestState);
+
+                ValidateSucceededResult(html, result);
+            }
+
+            private void SetupMocks(Uprn uprn, RequestState requestState, IRestResponse response)
+            {
+                IRestRequest request = new RestRequest();
+
+                this.requestBuilderMock
+                    .Setup(builder => builder.BuildUprnLookupRequest(uprn, requestState))
+                    .Returns(request);
+                this.restClientMock
+                    .Setup(client => client.Execute(request, Method.POST))
+                    .Returns(response);
             }
         }
 
@@ -110,13 +200,15 @@
         {
             private readonly MockRepository mockRepository;
             private readonly Mock<IRestClient> restClientMock;
+            private readonly Mock<IRequestBuilder> requestBuilderMock;
             private readonly Requestor sut;
 
             public RequestCollectionsLookupTests()
             {
                 this.mockRepository = new MockRepository(MockBehavior.Strict);
                 this.restClientMock = this.mockRepository.Create<IRestClient>();
-                this.sut = new Requestor(this.restClientMock.Object);
+                this.requestBuilderMock = this.mockRepository.Create<IRequestBuilder>();
+                this.sut = new Requestor(this.restClientMock.Object, this.requestBuilderMock.Object);
             }
 
             [Fact]
@@ -124,14 +216,64 @@
             {
                 RequestState requestState = new RequestStateFaker().Generate();
 
-                restClientMock
-                    .Setup(client => client.Execute(It.IsAny<RestRequest>(), Method.POST))
-                    .Returns(new RestResponse());
+                SetupMocks(requestState, CreateFailedResponse());
 
                 RequestResult result = this.sut.RequestCollectionsLookup(requestState);
 
                 result.Should().BeEquivalentTo(RequestResult.Failed);
             }
+
+            [Fact]
+            public void ShouldReturnRequestFailedWhenRequestFails1()
+            {
+                string html = new Faker().Random.String();
+                RequestState requestState = new RequestStateFaker().Generate();
+
+                SetupMocks(requestState, CreateOkResponse(html));
+
+                RequestResult result = this.sut.RequestCollectionsLookup(requestState);
+
+                ValidateSucceededResult(html, result);
+            }
+
+            private void SetupMocks(RequestState requestState, IRestResponse response)
+            {
+                IRestRequest request = new RestRequest();
+
+                this.requestBuilderMock
+                    .Setup(builder => builder.BuildCollectionsLookupRequest(requestState))
+                    .Returns(request);
+                this.restClientMock
+                    .Setup(client => client.Execute(request, Method.POST))
+                    .Returns(response);
+            }
+        }
+        private static IRestResponse CreateFailedResponse()
+        {
+            return new RestResponse()
+            {
+                ResponseStatus = ResponseStatus.Completed,
+                StatusCode = HttpStatusCode.InternalServerError
+            };
+        }
+
+        private static IRestResponse CreateOkResponse(string html)
+        {
+            return new RestResponse()
+            {
+                ResponseStatus = ResponseStatus.Completed,
+                StatusCode = HttpStatusCode.OK,
+                Content = html
+            };
+        }
+
+        private static void ValidateSucceededResult(string html, RequestResult result)
+        {
+            // Need to compare the document manually as the equivalent comparison with fail due to the nature of the object.
+            // The actual HTML the document parsed should match and can be compared against.
+            result.Should().BeEquivalentTo(RequestResult.Succeeded(html), config => config.Excluding(result => result.HtmlDocument));
+            result.HtmlDocument.Should().NotBeNull();
+            result.HtmlDocument!.ParsedText.Should().Be(html);
         }
     }
 }

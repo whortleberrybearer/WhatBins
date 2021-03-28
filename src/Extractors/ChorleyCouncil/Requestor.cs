@@ -7,66 +7,46 @@
     public class Requestor : IRequestor
     {
         private static readonly Uri BaseUri = new Uri("https://myaccount.chorley.gov.uk/wastecollections.aspx");
-        private IRestClient client;
+        private readonly IRestClient client;
+        private readonly IRequestBuilder requestBuilder;
 
         public Requestor()
-            : this(new RestClient(BaseUri))
+            : this(new RestClient(BaseUri), new RequestBuilder())
         {
         }
 
-        public Requestor(IRestClient client)
+        public Requestor(IRestClient client, IRequestBuilder requestBuilder)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
+            this.requestBuilder = requestBuilder ?? throw new ArgumentNullException(nameof(requestBuilder));
         }
 
         public RequestResult RequestCollectionsPage()
         {
-            return CreateRequestResult(this.client.Get(new RestRequest(Method.GET)));
+            IRestRequest request = this.requestBuilder.BuildCollectionsPageRequest();
+
+            return CreateRequestResult(this.client.Get(request));
         }
 
         public RequestResult RequestPostCodeLookup(PostCode postCode, RequestState requestState)
         {
-            IRestRequest request = CreateAndPopulatePostRequest(requestState);
-
-            // These additional parameters are required to identify what type the request is.
-            request.AddParameter("ctl00$MainContent$addressSearch$txtPostCodeLookup", (string)postCode, ParameterType.GetOrPost);
-            request.AddParameter("ctl00$MainContent$addressSearch$btnFindAddress", "Find Address", ParameterType.GetOrPost);
-            request.AddParameter("ctl00$toastQueue", "");
+            IRestRequest request = this.requestBuilder.BuildPostCodeLookupRequest(postCode, requestState);
 
             return CreateRequestResult(this.client.Post(request));
         }
 
         public RequestResult RequestUprnLookup(Uprn uprn, RequestState requestState)
         {
-            IRestRequest request = CreateAndPopulatePostRequest(requestState, "ctl00$MainContent$addressSearch$ddlAddress");
-
-            request.AddParameter("ctl00$MainContent$addressSearch$ddlAddress", (string)uprn, ParameterType.GetOrPost);
-            request.AddParameter("ctl00$toastQueue", "");
+            IRestRequest request = this.requestBuilder.BuildUprnLookupRequest(uprn, requestState);
 
             return CreateRequestResult(this.client.Post(request));
         }
 
         public RequestResult RequestCollectionsLookup(RequestState requestState)
         {
-            IRestRequest request = CreateAndPopulatePostRequest(requestState);
-
-            request.AddParameter("ctl00$MainContent$btnSearch", "Search", ParameterType.GetOrPost);
-            request.AddParameter("ctl00$toastQueue", "");
+            IRestRequest request = this.requestBuilder.BuildCollectionsLookupRequest(requestState);
 
             return CreateRequestResult(this.client.Post(request));
-        }
-
-        private static IRestRequest CreateAndPopulatePostRequest(RequestState requestState, string? eventTarget = null)
-        {
-            IRestRequest request = new RestRequest(Method.POST);
-
-            request.AddParameter("__EVENTTARGET", eventTarget ?? string.Empty, ParameterType.GetOrPost);
-            request.AddParameter("__EVENTARGUMENT", string.Empty, ParameterType.GetOrPost);
-            request.AddParameter("__VIEWSTATE", requestState.ViewState);
-            request.AddParameter("__VIEWSTATEGENERATOR", requestState.ViewStateGenerator);
-            request.AddParameter("__EVENTVALIDATION", requestState.EventValidation);
-
-            return request;
         }
 
         private static RequestResult CreateRequestResult(IRestResponse response)

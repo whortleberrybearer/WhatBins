@@ -1,6 +1,5 @@
 ﻿namespace WhatBins.Extractors.ChorleyCouncil
 {
-    using System;
     using RestSharp;
     using WhatBins.Types;
 
@@ -8,7 +7,7 @@
     {
         public IRestRequest BuildCollectionsPageRequest()
         {
-            throw new NotImplementedException();
+            return new RestRequest(Method.GET);
         }
 
         public IRestRequest BuildPostCodeLookupRequest(PostCode postCode, RequestState requestState)
