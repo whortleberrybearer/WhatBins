@@ -32,19 +32,19 @@
         {
             RequestResult requestResult = this.requestor.RequestCollectionsPage();
 
-            return Something(requestResult) ?? this.Continue1(postCode, requestResult.HtmlDocument!);
+            return EnsureRequestSucceeded(requestResult) ?? this.ProcessCollectionsPageAndContinue(postCode, requestResult.HtmlDocument!);
         }
 
-        private ExtractResult Continue1(PostCode postCode, HtmlDocument htmlDocument)
+        private ExtractResult ProcessCollectionsPageAndContinue(PostCode postCode, HtmlDocument htmlDocument)
         {
             RequestResult requestResult = this.requestor.RequestPostCodeLookup(
                 postCode,
                 this.parser.ExtractRequestState(htmlDocument));
 
-            return Something(requestResult) ?? this.Continue2(requestResult.HtmlDocument!);
+            return EnsureRequestSucceeded(requestResult) ?? this.ProcessPostCodeLookupAndContinue(requestResult.HtmlDocument!);
         }
 
-        private ExtractResult Continue2(HtmlDocument htmlDocument)
+        private ExtractResult ProcessPostCodeLookupAndContinue(HtmlDocument htmlDocument)
         {
             if (!this.parser.IsSupported(htmlDocument))
             {
@@ -56,18 +56,18 @@
                 this.parser.ExtractUprn(htmlDocument),
                 this.parser.ExtractRequestState(htmlDocument));
 
-            return Something(requestResult) ?? this.Continue3(requestResult.HtmlDocument!);
+            return EnsureRequestSucceeded(requestResult) ?? this.ProcessUprnLookupAndContinue(requestResult.HtmlDocument!);
         }
 
-        private ExtractResult Continue3(HtmlDocument htmlDocument)
+        private ExtractResult ProcessUprnLookupAndContinue(HtmlDocument htmlDocument)
         {
             RequestResult requestResult = this.requestor.RequestCollectionsLookup(
                 this.parser.ExtractRequestState(htmlDocument));
 
-            return Something(requestResult) ?? this.Continue4(requestResult.HtmlDocument!);
+            return EnsureRequestSucceeded(requestResult) ?? this.ExtractCollections(requestResult.HtmlDocument!);
         }
 
-        private ExtractResult Continue4(HtmlDocument htmlDocument)
+        private ExtractResult ExtractCollections(HtmlDocument htmlDocument)
         {
             if (!this.parser.DoesDoCollections(htmlDocument))
             {
@@ -80,7 +80,7 @@
             return collections.Any() ? new ExtractResult(CollectionState.Collection, collections) : new ExtractResult(CollectionState.NoCollection);
         }
 
-        private static ExtractResult? Something(RequestResult requestResult)
+        private static ExtractResult? EnsureRequestSucceeded(RequestResult requestResult)
         {
             if (!requestResult.Success)
             {

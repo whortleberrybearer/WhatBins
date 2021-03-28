@@ -45,7 +45,7 @@
         {
             // TODO: need to handle if this isnt avalire.  Taking a punt on the first value
             HtmlNode selectedOption = htmlDocument.DocumentNode.SelectSingleNode(".//*[contains(@name, 'ctl00$MainContent$addressSearch$ddlAddress')]/option[2]");
-            
+
             return new Uprn(selectedOption.GetAttributeValue("value", string.Empty));
         }
 
