@@ -1,5 +1,6 @@
 ﻿namespace WhatBins.Extractors.ChorleyCouncil.UnitTests
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Bogus;
@@ -12,7 +13,28 @@
 
     public class CollectionExtractorTests
     {
+        public class ConstructorTests
+        {
+            [Fact]
+            public void ShouldThrowArgumentNullExceptionWhenRequestorNull()
+            {
+                Mock<IParser> parserMock = new Mock<IParser>();
 
+                Action a = () => new CollectionExtractor(null!, parserMock.Object);
+
+                a.Should().Throw<ArgumentNullException>();
+            }
+
+            [Fact]
+            public void ShouldThrowArgumentNullExceptionWhenParserNull()
+            {
+                Mock<IRequestor> requestorMock = new Mock<IRequestor>();
+
+                Action a = () => new CollectionExtractor(requestorMock.Object, null!);
+
+                a.Should().Throw<ArgumentNullException>();
+            }
+        }
 
         public class CanExtractTests
         {
