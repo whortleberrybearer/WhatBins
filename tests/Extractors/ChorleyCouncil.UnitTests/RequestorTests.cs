@@ -24,12 +24,14 @@
 
         public class RequestCollectionsPageTests
         {
+            private readonly MockRepository mockRepository;
             private readonly Mock<IRestClient> restClientMock;
             private readonly Requestor sut;
 
             public RequestCollectionsPageTests()
             {
-                this.restClientMock = new Mock<IRestClient>(MockBehavior.Strict);
+                this.mockRepository = new MockRepository(MockBehavior.Strict);
+                this.restClientMock = this.mockRepository.Create<IRestClient>();
                 this.sut = new Requestor(this.restClientMock.Object);
             }
 
@@ -48,12 +50,14 @@
 
         public class RequestPostCodeLookupTests
         {
+            private readonly MockRepository mockRepository;
             private readonly Mock<IRestClient> restClientMock;
             private readonly Requestor sut;
 
             public RequestPostCodeLookupTests()
             {
-                this.restClientMock = new Mock<IRestClient>(MockBehavior.Strict);
+                this.mockRepository = new MockRepository(MockBehavior.Strict);
+                this.restClientMock = this.mockRepository.Create<IRestClient>();
                 this.sut = new Requestor(this.restClientMock.Object);
             }
 
@@ -75,12 +79,14 @@
 
         public class RequestUprnLookupTests
         {
+            private readonly MockRepository mockRepository;
             private readonly Mock<IRestClient> restClientMock;
             private readonly Requestor sut;
 
             public RequestUprnLookupTests()
             {
-                this.restClientMock = new Mock<IRestClient>(MockBehavior.Strict);
+                this.mockRepository = new MockRepository(MockBehavior.Strict);
+                this.restClientMock = this.mockRepository.Create<IRestClient>();
                 this.sut = new Requestor(this.restClientMock.Object);
             }
 
@@ -102,12 +108,14 @@
 
         public class RequestCollectionsLookupTests
         {
+            private readonly MockRepository mockRepository;
             private readonly Mock<IRestClient> restClientMock;
             private readonly Requestor sut;
 
             public RequestCollectionsLookupTests()
             {
-                this.restClientMock = new Mock<IRestClient>(MockBehavior.Strict);
+                this.mockRepository = new MockRepository(MockBehavior.Strict);
+                this.restClientMock = this.mockRepository.Create<IRestClient>();
                 this.sut = new Requestor(this.restClientMock.Object);
             }
 

@@ -23,11 +23,8 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
 
                 ExtractResult result = sut.Extract(postCode);
 
-                using (new AssertionScope())
-                {
-                    result.Should().NotBeNull();
-                    result.State.Should().Be(CollectionState.Unsupported);
-                }
+                result.Should().NotBeNull();
+                result.State.Should().Be(CollectionState.Unsupported);
             }
 
             [Theory]
@@ -39,11 +36,8 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
 
                 ExtractResult result = sut.Extract(postCode);
 
-                using (new AssertionScope())
-                {
-                    result.Should().NotBeNull();
-                    result.State.Should().Be(CollectionState.NoCollection);
-                }
+                result.Should().NotBeNull();
+                result.State.Should().Be(CollectionState.NoCollection);
             }
 
             [Theory]
@@ -55,9 +49,10 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
 
                 ExtractResult result = sut.Extract(postCode);
 
+                result.Should().NotBeNull();
+
                 using (new AssertionScope())
                 {
-                    result.Should().NotBeNull();
                     result.State.Should().Be(CollectionState.Collection);
                     result.Collections.Should().NotBeEmpty();
                 }

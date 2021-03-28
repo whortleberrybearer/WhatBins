@@ -37,11 +37,8 @@
 
                 RequestResult result = RequestResult.Succeeded(html);
 
-                using (new AssertionScope())
-                {
-                    result.HtmlDocument.Should().NotBeNull();
-                    result.HtmlDocument!.ParsedText.Should().Be(html);
-                }
+                result.HtmlDocument.Should().NotBeNull();
+                result.HtmlDocument!.ParsedText.Should().Be(html);
             }
         }
 
