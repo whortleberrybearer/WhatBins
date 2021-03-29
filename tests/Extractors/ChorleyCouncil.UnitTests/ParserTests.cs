@@ -2,7 +2,10 @@
 {
     using FluentAssertions;
     using HtmlAgilityPack;
+    using NodaTime;
     using System;
+    using System.Collections.Generic;
+    using WhatBins.Types;
     using Xunit;
 
     public class ParserTests
@@ -25,7 +28,16 @@
 
         public class IsSupportedTests
         {
-            private Parser sut = new Parser();
+            private readonly Parser sut = new Parser();
+
+            public static IEnumerable<object[]> SupportedHtmlDocuments()
+            {
+                return new List<object[]>()
+                {
+                    new object[] { noCollectionsHtmlDocument },
+                    new object[] { collectionsHtmlDocument },
+                };
+            }
 
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenHtmlDocumentIsNull()
@@ -36,25 +48,26 @@
             }
 
             [Fact]
-            public void ShouldReturnTrueWhenDocumentContainsExpectedText()
+            public void ShouldReturnFalseWhenDocumentContainsExpectedText()
             {
-                bool result = this.sut.IsSupported(collectionsHtmlDocument);
-
-                result.Should().BeTrue();
-            }
-
-            [Fact]
-            public void ShouldReturnFalseWhenDocumentDoesNotContainsExpectedText()
-            {
-                bool result = this.sut.IsSupported(collectionsHtmlDocument);
+                bool result = this.sut.IsSupported(notSupportedHtmlDocument);
 
                 result.Should().BeFalse();
+            }
+
+            [Theory]
+            [MemberData(nameof(SupportedHtmlDocuments))]
+            public void ShouldReturnTrueWhenDocumentDoesNotContainsExpectedText(HtmlDocument htmlDocument)
+            {
+                bool result = this.sut.IsSupported(htmlDocument);
+
+                result.Should().BeTrue();
             }
         }
 
         public class DoesDoCollectionsTests
         {
-            private Parser sut = new Parser();
+            private readonly Parser sut = new Parser();
 
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenHtmlDocumentIsNull()
@@ -63,11 +76,38 @@
 
                 a.Should().Throw<ArgumentNullException>();
             }
+
+            [Fact]
+            public void ShouldReturnFalseWhenDocumentContainsExpectedText()
+            {
+                bool result = this.sut.DoesDoCollections(noCollectionsHtmlDocument);
+
+                result.Should().BeFalse();
+            }
+
+            [Fact]
+            public void ShouldReturnTrueWhenDocumentDoesNotContainsExpectedText()
+            {
+                bool result = this.sut.DoesDoCollections(collectionsHtmlDocument);
+
+                result.Should().BeTrue();
+            }
         }
 
         public class ExtractRequestStateTests
         {
-            private Parser sut = new Parser();
+            private readonly Parser sut = new Parser();
+
+            //public static IEnumerable<object[]> HtmlDocuments()
+            //{
+            //    return new List<object[]>()
+            //    {
+            //        new object[] { collectionsPageHtmlDocument },
+            //        new object[] { postCodeLookupHtmlDocument },
+            //        new object[] { uprnLookupHtmlDocument },
+            //        new object[] { collectionsLookupHtmlDocument }
+            //    };
+            //}
 
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenHtmlDocumentIsNull()
@@ -80,7 +120,7 @@
 
         public class ExtractUprnTests
         {
-            private Parser sut = new Parser();
+            private readonly Parser sut = new Parser();
 
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenHtmlDocumentIsNull()
@@ -89,11 +129,19 @@
 
                 a.Should().Throw<ArgumentNullException>();
             }
+
+            [Fact]
+            public void ShouldExtractUprn()
+            {
+                Uprn result = this.sut.ExtractUprn(uprnLookupHtmlDocument);
+
+                result.Should().Be(new Uprn(""));
+            }
         }
 
         public class ExtractCollectionsTests
         {
-            private Parser sut = new Parser();
+            private readonly Parser sut = new Parser();
 
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenHtmlDocumentIsNull()
@@ -101,6 +149,27 @@
                 Action a = () => this.sut.ExtractCollections(null!);
 
                 a.Should().Throw<ArgumentNullException>();
+            }
+
+            [Fact]
+            public void ShouldExtractCollections()
+            {
+                IEnumerable<Collection> result = this.sut.ExtractCollections(collectionsHtmlDocument);
+
+                var expectedResult = new Collection[]
+                {
+                    new Collection(new LocalDate(2021, 3, 23), new Bin[] { new Bin(BinColour.Blue) }),
+                    new Collection(new LocalDate(2021, 3, 30), new Bin[] { new Bin(BinColour.Green) }),
+                    new Collection(new LocalDate(2021, 4, 6), new Bin[] { new Bin(BinColour.Blue), new Bin(BinColour.Brown) }),
+                    new Collection(new LocalDate(2021, 4, 13), new Bin[] { new Bin(BinColour.Green) }),
+                    new Collection(new LocalDate(2021, 4, 20), new Bin[] { new Bin(BinColour.Blue) }),
+                    new Collection(new LocalDate(2021, 4, 27), new Bin[] { new Bin(BinColour.Green) }),
+                    new Collection(new LocalDate(2021, 5, 4), new Bin[] { new Bin(BinColour.Blue), new Bin(BinColour.Brown) }),
+                    new Collection(new LocalDate(2021, 5, 11), new Bin[] { new Bin(BinColour.Green) }),
+                    new Collection(new LocalDate(2021, 5, 18), new Bin[] { new Bin(BinColour.Blue) })
+                };
+
+                result.Should().BeEquivalentTo(expectedResult);
             }
         }
     }

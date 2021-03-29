@@ -35,4 +35,16 @@
     <ProjectReference Include="..\..\WhatBins.Types.Fakes\WhatBins.Types.Fakes.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="RequestResponses\Collections.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="RequestResponses\NoCollections.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="RequestResponses\NotSupported.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
