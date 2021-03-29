@@ -6,8 +6,8 @@ namespace WhatBins.Tests
     using Bogus;
     using FluentAssertions;
     using Moq;
-    using WhatBins.Types.Fakes;
     using WhatBins.Types;
+    using WhatBins.Types.Fakes;
     using Xunit;
 
     public class BinCollectionsFinderTests
@@ -35,7 +35,7 @@ namespace WhatBins.Tests
                 {
                     this.mockRepository.Create<ICollectionExtractor>(),
                     this.mockRepository.Create<ICollectionExtractor>(),
-                    this.mockRepository.Create<ICollectionExtractor>()
+                    this.mockRepository.Create<ICollectionExtractor>(),
                 };
                 this.sut = new BinCollectionsFinder(this.collectionExtractorMocks.Select(mock => mock.Object));
             }
@@ -45,7 +45,7 @@ namespace WhatBins.Tests
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
-                foreach (Mock<ICollectionExtractor> collectionExtractorMock in collectionExtractorMocks)
+                foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
                 {
                     collectionExtractorMock
                         .Setup(extractor => extractor.CanExtract(postCode))
@@ -62,7 +62,7 @@ namespace WhatBins.Tests
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
-                foreach (Mock<ICollectionExtractor> collectionExtractorMock in collectionExtractorMocks)
+                foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
                 {
                     collectionExtractorMock
                         .Setup(extractor => extractor.CanExtract(postCode))
@@ -88,7 +88,7 @@ namespace WhatBins.Tests
                 PostCode postCode = new PostCodeFaker().Generate();
                 IEnumerable<Collection> collections = new CollectionFaker().Generate(new Faker().Random.Number(1, 5));
 
-                foreach (Mock<ICollectionExtractor> collectionExtractorMock in collectionExtractorMocks)
+                foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
                 {
                     collectionExtractorMock
                         .Setup(extractor => extractor.CanExtract(postCode))

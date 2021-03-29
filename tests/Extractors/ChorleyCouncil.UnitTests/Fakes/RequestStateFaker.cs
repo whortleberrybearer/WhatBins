@@ -5,6 +5,7 @@
     public class RequestStateFaker
     {
         private readonly Faker faker = new Faker();
+
         public RequestState Generate()
         {
             return new RequestState(

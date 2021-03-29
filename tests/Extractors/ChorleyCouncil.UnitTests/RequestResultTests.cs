@@ -1,9 +1,8 @@
 ﻿namespace WhatBins.Extractors.ChorleyCouncil.UnitTests
 {
+    using System;
     using Bogus;
     using FluentAssertions;
-    using FluentAssertions.Execution;
-    using System;
     using Xunit;
 
     public class RequestResultTests

@@ -21,7 +21,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                ExtractResult result = sut.Extract(postCode);
+                ExtractResult result = this.sut.Extract(postCode);
 
                 result.Should().NotBeNull();
                 result.State.Should().Be(CollectionState.Unsupported);
@@ -34,7 +34,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                ExtractResult result = sut.Extract(postCode);
+                ExtractResult result = this.sut.Extract(postCode);
 
                 result.Should().NotBeNull();
                 result.State.Should().Be(CollectionState.NoCollection);
@@ -47,7 +47,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                ExtractResult result = sut.Extract(postCode);
+                ExtractResult result = this.sut.Extract(postCode);
 
                 result.Should().NotBeNull();
 
