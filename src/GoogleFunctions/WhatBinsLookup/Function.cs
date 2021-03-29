@@ -3,12 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.Net;
-    using System.Text.Json;
     using System.Threading.Tasks;
     using Google.Cloud.Functions.Framework;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Primitives;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
+    using NodaTime;
+    using NodaTime.Serialization.JsonNet;
     using WhatBins.Extractors.ChorleyCouncil;
     using WhatBins.Types;
 
@@ -31,7 +34,7 @@
         public async Task HandleAsync(HttpContext context)
         {
             // Get the post code from the query if available.
-            if (!context.Request.Query.TryGetValue("postcode", out StringValues values) && (values.Count == 1))
+            if (!context.Request.Query.TryGetValue("postcode", out StringValues values) && (values.Count != 1))
             {
                 // Postcode is missing.
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -58,7 +61,12 @@
             // As we now have a valid post code, try and get the collections.
             LookupResult lookupResult = this.binCollectionsFinder.Lookup(postCode);
 
-            await context.Response.WriteAsync(JsonSerializer.Serialize(lookupResult));
+            // Serialiser settings required to covert dates and enums to suitable values.
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+            settings.Converters.Add(new StringEnumConverter());
+
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(lookupResult, settings));
         }
     }
 }
