@@ -5,7 +5,7 @@
 
     public struct PostCode
     {
-        private static readonly Regex postCodeRegex = new Regex("([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\\s?[0-9][A-Za-z]{2})");
+        private static readonly Regex PostCodeRegex = new Regex("([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\\s?[0-9][A-Za-z]{2})");
         private readonly string value;
 
         public PostCode(string value)
@@ -15,7 +15,7 @@
                 throw new ArgumentNullException(nameof(value));
             }
 
-            if (!postCodeRegex.IsMatch(value))
+            if (!PostCodeRegex.IsMatch(value))
             {
                 throw new ArgumentException("Invalid postcode", nameof(value));
             }
@@ -28,6 +28,10 @@
             this.Incode = parts[1];
         }
 
+        public string Outcode { get; }
+
+        public string Incode { get; }
+
         public static implicit operator string(PostCode postCode) => postCode.value;
 
         public static bool operator ==(PostCode left, PostCode right)
@@ -39,11 +43,6 @@
         {
             return !(left == right);
         }
-
-
-        public string Outcode { get; }
-
-        public string Incode { get; }
 
         public override bool Equals(object? obj)
         {

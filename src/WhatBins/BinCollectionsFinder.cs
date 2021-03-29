@@ -7,7 +7,7 @@
 
     public class BinCollectionsFinder : IBinCollectionsFinder
     {
-        private IEnumerable<ICollectionExtractor> collectionExtractors;
+        private readonly IEnumerable<ICollectionExtractor> collectionExtractors;
 
         public BinCollectionsFinder(IEnumerable<ICollectionExtractor> collectionExtractors)
         {

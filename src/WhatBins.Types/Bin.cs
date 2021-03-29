@@ -4,7 +4,7 @@
     {
         public Bin(BinColour colour)
         {
-            Colour = colour;
+            this.Colour = colour;
         }
 
         public BinColour Colour { get; }

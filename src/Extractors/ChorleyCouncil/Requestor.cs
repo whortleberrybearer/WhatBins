@@ -6,7 +6,9 @@
 
     public class Requestor : IRequestor
     {
+#pragma warning disable S1075 // URIs should not be hardcoded
         private static readonly Uri BaseUri = new Uri("https://myaccount.chorley.gov.uk/wastecollections.aspx");
+#pragma warning restore S1075 // URIs should not be hardcoded
         private readonly IRestClient client;
         private readonly IRequestBuilder requestBuilder;
 

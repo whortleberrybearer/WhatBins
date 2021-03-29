@@ -35,6 +35,18 @@
             return EnsureRequestSucceeded(requestResult) ?? this.ProcessCollectionsPageAndContinue(postCode, requestResult.HtmlDocument!);
         }
 
+        private static ExtractResult? EnsureRequestSucceeded(RequestResult requestResult)
+        {
+            if (!requestResult.Success)
+            {
+                // We have failed with our initial request, so just report as unsupported at this time.
+                // It may be the page is no longer available.
+                return new ExtractResult(CollectionState.Unsupported);
+            }
+
+            return null;
+        }
+
         private ExtractResult ProcessCollectionsPageAndContinue(PostCode postCode, HtmlDocument htmlDocument)
         {
             RequestResult requestResult = this.requestor.RequestPostCodeLookup(
@@ -78,18 +90,6 @@
 
             // It shouldn't happen, but id there are no collections returned, set the state as no collections.
             return collections.Any() ? new ExtractResult(CollectionState.Collection, collections) : new ExtractResult(CollectionState.NoCollection);
-        }
-
-        private static ExtractResult? EnsureRequestSucceeded(RequestResult requestResult)
-        {
-            if (!requestResult.Success)
-            {
-                // We have failed with our initial request, so just report as unsupported at this time.
-                // It may be the page is no longer available.
-                return new ExtractResult(CollectionState.Unsupported);
-            }
-
-            return null;
         }
     }
 }

@@ -5,7 +5,7 @@
 
     public struct Uprn
     {
-        private static readonly Regex uprnRegex = new Regex("UPRN\\d+");
+        private static readonly Regex UprnRegex = new Regex("UPRN\\d+");
         private readonly string value;
 
         public Uprn(string value)
@@ -15,7 +15,7 @@
                 throw new ArgumentNullException(nameof(value));
             }
 
-            if (!uprnRegex.IsMatch(value))
+            if (!UprnRegex.IsMatch(value))
             {
                 throw new ArgumentException("Invalid UPRN", nameof(value));
             }

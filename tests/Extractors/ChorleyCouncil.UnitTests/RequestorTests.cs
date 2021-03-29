@@ -13,6 +13,34 @@
 
     public class RequestorTests
     {
+        private static IRestResponse CreateFailedResponse()
+        {
+            return new RestResponse()
+            {
+                ResponseStatus = ResponseStatus.Completed,
+                StatusCode = HttpStatusCode.InternalServerError,
+            };
+        }
+
+        private static IRestResponse CreateOkResponse(string html)
+        {
+            return new RestResponse()
+            {
+                ResponseStatus = ResponseStatus.Completed,
+                StatusCode = HttpStatusCode.OK,
+                Content = html,
+            };
+        }
+
+        private static void ValidateSucceededResult(string html, RequestResult result)
+        {
+            // Need to compare the document manually as the equivalent comparison with fail due to the nature of the object.
+            // The actual HTML the document parsed should match and can be compared against.
+            result.Should().BeEquivalentTo(RequestResult.Succeeded(html), config => config.Excluding(result => result.HtmlDocument));
+            result.HtmlDocument.Should().NotBeNull();
+            result.HtmlDocument!.ParsedText.Should().Be(html);
+        }
+
         public class ConstructorTests
         {
             [Fact]
@@ -54,7 +82,7 @@
             [Fact]
             public void ShouldReturnRequestFailedWhenRequestFails()
             {
-                SetupMocks(CreateFailedResponse());
+                this.SetupMocks(CreateFailedResponse());
 
                 RequestResult result = this.sut.RequestCollectionsPage();
 
@@ -66,7 +94,7 @@
             {
                 string html = new Faker().Random.String();
 
-                SetupMocks(CreateOkResponse(html));
+                this.SetupMocks(CreateOkResponse(html));
 
                 RequestResult result = this.sut.RequestCollectionsPage();
 
@@ -107,7 +135,7 @@
                 PostCode postCode = new PostCodeFaker().Generate();
                 RequestState requestState = new RequestStateFaker().Generate();
 
-                SetupMocks(postCode, requestState, CreateFailedResponse());
+                this.SetupMocks(postCode, requestState, CreateFailedResponse());
 
                 RequestResult result = this.sut.RequestPostCodeLookup(postCode, requestState);
 
@@ -121,7 +149,7 @@
                 PostCode postCode = new PostCodeFaker().Generate();
                 RequestState requestState = new RequestStateFaker().Generate();
 
-                SetupMocks(postCode, requestState, CreateOkResponse(html));
+                this.SetupMocks(postCode, requestState, CreateOkResponse(html));
 
                 RequestResult result = this.sut.RequestPostCodeLookup(postCode, requestState);
 
@@ -162,7 +190,7 @@
                 Uprn uprn = new UprnFaker().Generate();
                 RequestState requestState = new RequestStateFaker().Generate();
 
-                SetupMocks(uprn, requestState, CreateFailedResponse());
+                this.SetupMocks(uprn, requestState, CreateFailedResponse());
 
                 RequestResult result = this.sut.RequestUprnLookup(uprn, requestState);
 
@@ -176,7 +204,7 @@
                 Uprn uprn = new UprnFaker().Generate();
                 RequestState requestState = new RequestStateFaker().Generate();
 
-                SetupMocks(uprn, requestState, CreateOkResponse(html));
+                this.SetupMocks(uprn, requestState, CreateOkResponse(html));
 
                 RequestResult result = this.sut.RequestUprnLookup(uprn, requestState);
 
@@ -216,7 +244,7 @@
             {
                 RequestState requestState = new RequestStateFaker().Generate();
 
-                SetupMocks(requestState, CreateFailedResponse());
+                this.SetupMocks(requestState, CreateFailedResponse());
 
                 RequestResult result = this.sut.RequestCollectionsLookup(requestState);
 
@@ -229,7 +257,7 @@
                 string html = new Faker().Random.String();
                 RequestState requestState = new RequestStateFaker().Generate();
 
-                SetupMocks(requestState, CreateOkResponse(html));
+                this.SetupMocks(requestState, CreateOkResponse(html));
 
                 RequestResult result = this.sut.RequestCollectionsLookup(requestState);
 
@@ -247,33 +275,6 @@
                     .Setup(client => client.Execute(request, Method.POST))
                     .Returns(response);
             }
-        }
-        private static IRestResponse CreateFailedResponse()
-        {
-            return new RestResponse()
-            {
-                ResponseStatus = ResponseStatus.Completed,
-                StatusCode = HttpStatusCode.InternalServerError
-            };
-        }
-
-        private static IRestResponse CreateOkResponse(string html)
-        {
-            return new RestResponse()
-            {
-                ResponseStatus = ResponseStatus.Completed,
-                StatusCode = HttpStatusCode.OK,
-                Content = html
-            };
-        }
-
-        private static void ValidateSucceededResult(string html, RequestResult result)
-        {
-            // Need to compare the document manually as the equivalent comparison with fail due to the nature of the object.
-            // The actual HTML the document parsed should match and can be compared against.
-            result.Should().BeEquivalentTo(RequestResult.Succeeded(html), config => config.Excluding(result => result.HtmlDocument));
-            result.HtmlDocument.Should().NotBeNull();
-            result.HtmlDocument!.ParsedText.Should().Be(html);
         }
     }
 }

@@ -5,8 +5,8 @@
     using Bogus;
     using FluentAssertions;
     using FluentAssertions.Execution;
-    using WhatBins.Types.Fakes;
     using WhatBins.Types;
+    using WhatBins.Types.Fakes;
     using Xunit;
 
     public class LookupResultTests

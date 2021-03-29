@@ -1,4 +1,5 @@
-﻿namespace WhatBins.Extractors.ChorleyCouncil
+﻿#pragma warning disable S1135 // Track uses of "TODO" tags
+namespace WhatBins.Extractors.ChorleyCouncil
 {
     using System;
     using System.Collections.Generic;
@@ -17,7 +18,7 @@
             { "Blue%20Bin2", BinColour.Blue },
             { "Grey%20Garden%20Waste%20Bin2", BinColour.Grey },
             { "Brown%20Bin2", BinColour.Brown },
-            { "Green%20Bin2", BinColour.Green }
+            { "Green%20Bin2", BinColour.Green },
         };
 
         public bool IsWithinBoundary(HtmlDocument htmlDocument)
@@ -50,8 +51,7 @@
             return new RequestState(
                 htmlDocument.GetElementbyId("__VIEWSTATE").GetAttributeValue("value", string.Empty),
                 htmlDocument.GetElementbyId("__VIEWSTATEGENERATOR").GetAttributeValue("value", string.Empty),
-                htmlDocument.GetElementbyId("__EVENTVALIDATION").GetAttributeValue("value", string.Empty)
-            );
+                htmlDocument.GetElementbyId("__EVENTVALIDATION").GetAttributeValue("value", string.Empty));
         }
 
         public Uprn ExtractUprn(HtmlDocument htmlDocument)
@@ -79,13 +79,13 @@
             // All the collections are stored in a table, with a month per row, then dates per column.
             foreach (HtmlNode rowNode in htmlDocument.DocumentNode.SelectNodes(".//table[contains(@class, \"WasteCollection\")]/tr"))
             {
-                collections.AddRange(this.ProcessMonthRow(rowNode));
+                collections.AddRange(ProcessMonthRow(rowNode));
             }
 
             return collections;
         }
 
-        private IEnumerable<Collection> ProcessMonthRow(HtmlNode rowNode)
+        private static IEnumerable<Collection> ProcessMonthRow(HtmlNode rowNode)
         {
             HtmlNode dateColumn = rowNode.SelectSingleNode("td[1]");
             ParseResult<LocalDate> monthParseResult = MonthPattern.Parse(dateColumn.InnerText);
@@ -99,10 +99,10 @@
                 return Enumerable.Empty<Collection>();
             }
 
-            return this.ProcessDayColumns(rowNode.SelectNodes("td[position()>1]"), monthParseResult.Value);
+            return ProcessDayColumns(rowNode.SelectNodes("td[position()>1]"), monthParseResult.Value);
         }
 
-        private IEnumerable<Collection> ProcessDayColumns(HtmlNodeCollection dayColumnNodes, LocalDate monthDate)
+        private static IEnumerable<Collection> ProcessDayColumns(HtmlNodeCollection dayColumnNodes, LocalDate monthDate)
         {
             List<Collection> collections = new List<Collection>();
 
@@ -119,7 +119,7 @@
                         // to the 2nd of the month instead of the 1st without the subtract.
                         LocalDate collectionDate = monthDate.Plus(Period.FromDays(day - 1));
 
-                        collections.Add(new Collection(collectionDate, this.ProcessDayColumn(dayColumnNode)));
+                        collections.Add(new Collection(collectionDate, ProcessDayColumn(dayColumnNode)));
                     }
                     else
                     {
@@ -137,7 +137,7 @@
             return collections;
         }
 
-        private IEnumerable<Bin> ProcessDayColumn(HtmlNode dayColumnNode)
+        private static IEnumerable<Bin> ProcessDayColumn(HtmlNode dayColumnNode)
         {
             List<Bin> bins = new List<Bin>();
 
@@ -165,3 +165,4 @@
         }
     }
 }
+#pragma warning restore S1135 // Track uses of "TODO" tags

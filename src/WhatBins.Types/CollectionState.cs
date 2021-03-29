@@ -4,6 +4,6 @@
     {
         Unsupported,
         NoCollection,
-        Collection
+        Collection,
     }
 }

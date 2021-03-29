@@ -5,6 +5,6 @@
         Blue,
         Green,
         Brown,
-        Grey
+        Grey,
     }
 }
