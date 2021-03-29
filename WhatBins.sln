@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BC2F0DFB-F919-4A05-BAB3-CE9D8CCC6295}"
+	ProjectSection(SolutionItems) = preProject
+		tests\.editorconfig = tests\.editorconfig
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhatBins", "src\WhatBins\WhatBins.csproj", "{E28FC6ED-53FD-4DDB-AC96-D375FFC4619A}"
 EndProject

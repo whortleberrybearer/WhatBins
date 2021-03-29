@@ -8,7 +8,7 @@
 
     public class UprnTests
     {
-        public static IEnumerable<object[]> ValidUprns = new List<object[]>()
+        public static IEnumerable<object[]> ValidUprns { get; } = new List<object[]>()
             {
                 new object[] { "UPRN100023336956" },
                 new object[] { "UPRN000000199356" },

@@ -9,7 +9,7 @@
 
     public class PostCodeTests
     {
-        public static IEnumerable<object[]> ValidPostCodes = new List<object[]>()
+        public static IEnumerable<object[]> ValidPostCodes { get; } = new List<object[]>()
             {
                 new object[] { "PR1 1AA" },
                 new object[] { "W1 1AA" },

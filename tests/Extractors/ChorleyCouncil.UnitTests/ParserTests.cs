@@ -10,32 +10,19 @@
 
     public class ParserTests
     {
-        private static readonly HtmlDocument NotSupportedHtmlDocument;
-        private static readonly HtmlDocument NoCollectionsHtmlDocument;
-        private static readonly HtmlDocument CollectionsHtmlDocument;
-        private static readonly HtmlDocument CollectionsPageHtmlDocument;
-        private static readonly HtmlDocument UprnLookupHtmlDocument;
-        private static readonly HtmlDocument CollectionsLookupHtmlDocument;
+        private static readonly HtmlDocument NotSupportedHtmlDocument = InitialiseHtmlDocument("RequestResponses//NotSupported.html");
+        private static readonly HtmlDocument NoCollectionsHtmlDocument = InitialiseHtmlDocument("RequestResponses//NoCollections.html");
+        private static readonly HtmlDocument CollectionsHtmlDocument = InitialiseHtmlDocument("RequestResponses//Collections.html");
+        private static readonly HtmlDocument CollectionsPageHtmlDocument = InitialiseHtmlDocument("RequestResponses//CollectionsPage.html");
+        private static readonly HtmlDocument UprnLookupHtmlDocument = InitialiseHtmlDocument("RequestResponses//UprnLookup.html");
+        private static readonly HtmlDocument CollectionsLookupHtmlDocument = InitialiseHtmlDocument("RequestResponses//CollectionsLookup.html");
 
-        static ParserTests()
+        private static HtmlDocument InitialiseHtmlDocument(string path)
         {
-            CollectionsPageHtmlDocument = new HtmlDocument();
-            CollectionsPageHtmlDocument.Load("RequestResponses//CollectionsPage.html");
+            HtmlDocument htmlDocument = new HtmlDocument();
+            htmlDocument.Load(path);
 
-            UprnLookupHtmlDocument = new HtmlDocument();
-            UprnLookupHtmlDocument.Load("RequestResponses//UprnLookup.html");
-
-            CollectionsLookupHtmlDocument = new HtmlDocument();
-            CollectionsLookupHtmlDocument.Load("RequestResponses//CollectionsLookup.html");
-
-            NotSupportedHtmlDocument = new HtmlDocument();
-            NotSupportedHtmlDocument.Load("RequestResponses//NotSupported.html");
-
-            NoCollectionsHtmlDocument = new HtmlDocument();
-            NoCollectionsHtmlDocument.Load("RequestResponses//NoCollections.html");
-
-            CollectionsHtmlDocument = new HtmlDocument();
-            CollectionsHtmlDocument.Load("RequestResponses//Collections.html");
+            return htmlDocument;
         }
 
         public class IsWithinBoundaryTests
