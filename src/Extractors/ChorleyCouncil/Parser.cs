@@ -12,7 +12,7 @@
     public class Parser : IParser
     {
         private static readonly LocalDatePattern MonthPattern = LocalDatePattern.CreateWithInvariantCulture("MMMM yyyy");
-        private static IDictionary<string, BinColour> BinColourLookup = new Dictionary<string, BinColour>()
+        private static readonly IDictionary<string, BinColour> BinColourLookup = new Dictionary<string, BinColour>()
         {
             { "Blue%20Bin2", BinColour.Blue },
             { "Grey%20Garden%20Waste%20Bin2", BinColour.Grey },
