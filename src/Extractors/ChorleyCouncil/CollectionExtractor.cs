@@ -46,7 +46,7 @@
 
         private ExtractResult ProcessPostCodeLookupAndContinue(HtmlDocument htmlDocument)
         {
-            if (!this.parser.IsSupported(htmlDocument))
+            if (!this.parser.IsWithinBoundary(htmlDocument))
             {
                 // Response indicates the post code is not in the area.
                 return new ExtractResult(CollectionState.Unsupported);
@@ -69,7 +69,7 @@
 
         private ExtractResult ExtractCollections(HtmlDocument htmlDocument)
         {
-            if (!this.parser.DoesDoCollections(htmlDocument))
+            if (!this.parser.DoesCollectAtAddress(htmlDocument))
             {
                 return new ExtractResult(CollectionState.NoCollection);
             }

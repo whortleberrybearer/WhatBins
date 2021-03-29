@@ -230,7 +230,7 @@
                 this.SetupRequestPostCodeLookupMocks(postCode, previousRequestResult);
 
                 this.parserMock
-                    .Setup(parser => parser.IsSupported(previousRequestResult.HtmlDocument!))
+                    .Setup(parser => parser.IsWithinBoundary(previousRequestResult.HtmlDocument!))
                     .Returns(isSupported);
                 this.parserMock
                     .Setup(parser => parser.ExtractRequestState(previousRequestResult.HtmlDocument!))
@@ -269,7 +269,7 @@
                 this.SetupRequestCollectionLookupsMocks(postCode, previousRequestResult);
 
                 this.parserMock
-                    .Setup(parser => parser.DoesDoCollections(previousRequestResult.HtmlDocument!))
+                    .Setup(parser => parser.DoesCollectAtAddress(previousRequestResult.HtmlDocument!))
                     .Returns(doesDoCollections);
                 this.parserMock
                     .Setup(parser => parser.ExtractCollections(previousRequestResult.HtmlDocument!))

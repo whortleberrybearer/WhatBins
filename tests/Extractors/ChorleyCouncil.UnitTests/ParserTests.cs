@@ -38,7 +38,7 @@
             collectionsHtmlDocument.Load("RequestResponses//Collections.html");
         }
 
-        public class IsSupportedTests
+        public class IsWithinBoundaryTests
         {
             private readonly Parser sut = new Parser();
 
@@ -54,7 +54,7 @@
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenHtmlDocumentIsNull()
             {
-                Action a = () => this.sut.IsSupported(null!);
+                Action a = () => this.sut.IsWithinBoundary(null!);
 
                 a.Should().Throw<ArgumentNullException>();
             }
@@ -62,7 +62,7 @@
             [Fact]
             public void ShouldReturnFalseWhenDocumentContainsExpectedText()
             {
-                bool result = this.sut.IsSupported(notSupportedHtmlDocument);
+                bool result = this.sut.IsWithinBoundary(notSupportedHtmlDocument);
 
                 result.Should().BeFalse();
             }
@@ -71,20 +71,20 @@
             [MemberData(nameof(SupportedHtmlDocuments))]
             public void ShouldReturnTrueWhenDocumentDoesNotContainsExpectedText(HtmlDocument htmlDocument)
             {
-                bool result = this.sut.IsSupported(htmlDocument);
+                bool result = this.sut.IsWithinBoundary(htmlDocument);
 
                 result.Should().BeTrue();
             }
         }
 
-        public class DoesDoCollectionsTests
+        public class DoesCollectAtAddressTests
         {
             private readonly Parser sut = new Parser();
 
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenHtmlDocumentIsNull()
             {
-                Action a = () => this.sut.DoesDoCollections(null!);
+                Action a = () => this.sut.DoesCollectAtAddress(null!);
 
                 a.Should().Throw<ArgumentNullException>();
             }
@@ -92,7 +92,7 @@
             [Fact]
             public void ShouldReturnFalseWhenDocumentContainsExpectedText()
             {
-                bool result = this.sut.DoesDoCollections(noCollectionsHtmlDocument);
+                bool result = this.sut.DoesCollectAtAddress(noCollectionsHtmlDocument);
 
                 result.Should().BeFalse();
             }
@@ -100,7 +100,7 @@
             [Fact]
             public void ShouldReturnTrueWhenDocumentDoesNotContainsExpectedText()
             {
-                bool result = this.sut.DoesDoCollections(collectionsHtmlDocument);
+                bool result = this.sut.DoesCollectAtAddress(collectionsHtmlDocument);
 
                 result.Should().BeTrue();
             }

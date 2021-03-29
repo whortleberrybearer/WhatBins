@@ -6,7 +6,7 @@
 
     public interface IParser
     {
-        bool DoesDoCollections(HtmlDocument htmlDocument);
+        bool DoesCollectAtAddress(HtmlDocument htmlDocument);
 
         IEnumerable<Collection> ExtractCollections(HtmlDocument htmlDocument);
 
@@ -14,6 +14,6 @@
 
         Uprn ExtractUprn(HtmlDocument htmlDocument);
 
-        bool IsSupported(HtmlDocument htmlDocument);
+        bool IsWithinBoundary(HtmlDocument htmlDocument);
     }
 }

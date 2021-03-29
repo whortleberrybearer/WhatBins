@@ -9,7 +9,6 @@
     using NodaTime.Text;
     using WhatBins.Types;
 
-    // TODO: probably an extractor
     public class Parser : IParser
     {
         private static readonly LocalDatePattern MonthPattern = LocalDatePattern.CreateWithInvariantCulture("MMMM yyyy");
@@ -21,8 +20,7 @@
             { "Green%20Bin2", BinColour.Green }
         };
 
-        // TODO: Should be is within boundart
-        public bool IsSupported(HtmlDocument htmlDocument)
+        public bool IsWithinBoundary(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
@@ -32,7 +30,7 @@
             return !htmlDocument.ParsedText.Contains("No addresses found within Chorley Council boundaries for this address.");
         }
 
-        public bool DoesDoCollections(HtmlDocument htmlDocument)
+        public bool DoesCollectAtAddress(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
@@ -63,7 +61,7 @@
                 throw new ArgumentNullException(nameof(htmlDocument));
             }
 
-            // TODO: need to handle if this isnt avalire.  Taking a punt on the first value
+            // This runs on the assumption that all the addresses in the post code are collected at the same time, so can just select the first.
             HtmlNode selectedOption = htmlDocument.DocumentNode.SelectSingleNode(".//*[contains(@name, 'ctl00$MainContent$addressSearch$ddlAddress')]/option[2]");
 
             return new Uprn(selectedOption.GetAttributeValue("value", string.Empty));
@@ -94,7 +92,7 @@
 
             if (!monthParseResult.Success)
             {
-                // TODO: Log the failure.
+                // TODO: Log invalid month.
 
                 // As we can not get the month, don't continue to parse the row.  It is likely that the rest of the table wont parse as well,
                 // resulting in no collections.
@@ -125,8 +123,8 @@
                     }
                     else
                     {
-                        // TODO: Date buggered, not a lot can do
-                        // TODO: Log failure to parse/
+                        // The date is invalid, so nothing that can be done.
+                        // TODO: Log invalid date.
                     }
                 }
                 else
