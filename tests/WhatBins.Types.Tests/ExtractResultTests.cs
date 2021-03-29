@@ -41,7 +41,7 @@
             public void ShouldSetCollections()
             {
                 CollectionState collectionState = new CollectionStateFaker().Generate();
-                IEnumerable<Collection> collections = new CollectionFaker().Generate(new Faker().Random.Number(1, 5));
+                IEnumerable<Collection> collections = new CollectionFaker().Generate(3);
 
                 ExtractResult result = new ExtractResult(collectionState, collections);
 
