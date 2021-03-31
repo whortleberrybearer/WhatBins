@@ -1,0 +1,20 @@
+{
+  "name": "google-assistant-fulfillment",
+  "version": "0.0.0",
+  "private": true,
+  "description": "GoogleAssistantFulfillment",
+  "main": "app.js",
+  "engines": {
+    "node": "10"
+  },
+  "author": {
+    "name": ""
+  },
+  "dependencies": {
+    "@assistant/conversation": "^3.0.0",
+    "firebase-admin": "^8.12.1",
+    "firebase-functions": "^3.6.2",
+    "moment": "^2.29.1",
+    "sync-request": "^6.1.0"
+  }
+}
