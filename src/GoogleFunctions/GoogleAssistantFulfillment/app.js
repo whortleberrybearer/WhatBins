@@ -1,17 +1,17 @@
-'use strict';
+"use strict";
 
-const { conversation } = require('@assistant/conversation');
-const functions = require('firebase-functions');
-const request = require('sync-request');
-const moment = require('moment');
+const { conversation } = require("@assistant/conversation");
+const functions = require("firebase-functions");
+const request = require("sync-request");
+const moment = require("moment");
 
 const app = conversation();
 
 function outputCollections(collections, covn) {
     const now = moment().utc();
-    const tomorrow = moment().utc().startOf('day').add(1, 'day');
-    const next = moment().utc().startOf('day').add(7, 'days');
-    const lookahead = moment().utc().startOf('day').add(7, 'days');
+    const tomorrow = moment().utc().startOf("day").add(1, "day");
+    const next = moment().utc().startOf("day").add(7, "days");
+    const lookahead = moment().utc().startOf("day").add(7, "days");
     var collectionFound = false;
 
     collections.forEach(function (arrayItem) {
@@ -22,22 +22,22 @@ function outputCollections(collections, covn) {
 
             var message = "";
 
-            if (collectionDate.isSame(now, 'day')) {
+            if (collectionDate.isSame(now, "day")) {
                 message = "Today";
             }
-            else if (collectionDate.isSame(tomorrow, 'day')) {
+            else if (collectionDate.isSame(tomorrow, "day")) {
                 message = "Tomorrow";
             }
             else {
                 // This can happen if it is later in the day, so say next to avoid confusion thinking it is today.
-                if (collectionDate.isSame(next, 'day')) {
+                if (collectionDate.isSame(next, "day")) {
                     message = "Next ";
                 }
                 else {
                     message = "On ";
                 }
 
-                message += collectionDate.format('dddd');
+                message += collectionDate.format("dddd");
             }
 
             message += " your ";
@@ -67,9 +67,9 @@ function outputCollections(collections, covn) {
 
             covn.add(message);
         }
-        else if ((collectionDate.isSame(now, 'day'))) {
+        else if ((collectionDate.isSame(now, "day"))) {
             // Collection was earlier today, so increase the lookahead to include next weeks.
-            lookahead.add(1, 'day');
+            lookahead.add(1, "day");
         }
     });
 
@@ -89,13 +89,13 @@ function outputCollectionState(lookupResult, conv) {
     conv.add("This address is currently not supported.");
 };
 
-app.handle('lookupCollections', conv => {
+app.handle("lookupCollections", conv => {
 
-    // Query the lookup for the collection data.  If this is not done syncrounsly, the conversions completes before the response is recieved.
+    // Query the lookup for the collection data.  If this is not done synchronously, the conversions completes before the response is received.
     const lookupUrl = new URL(process.env.LOOKUP_URL);
     lookupUrl.searchParams.append("postcode", process.env.POSTCODE);
 
-    const res = request('GET', lookupUrl.toString());
+    const res = request("GET", lookupUrl.toString());
 
     if (res.statusCode >= 300) {
         // If an error has occurred, just say it is unsupported.
