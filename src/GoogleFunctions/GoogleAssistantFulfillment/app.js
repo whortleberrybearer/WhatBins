@@ -1,6 +1,6 @@
 'use strict';
 
-const conversation = require('@assistant/conversation');
+const { conversation } = require('@assistant/conversation');
 const functions = require('firebase-functions');
 const request = require('sync-request');
 const moment = require('moment');
@@ -89,9 +89,9 @@ function outputCollectionState(lookupResult, conv) {
     conv.add("This address is currently not supported.");
 };
 
-app.handle('sayHello', conv => {
+app.handle('lookupCollections', conv => {
 
-    // Query the lookup for the collection data.  If this is not done synchronously, the conversions completes before the response is received.
+    // Query the lookup for the collection data.  If this is not done syncrounsly, the conversions completes before the response is recieved.
     const lookupUrl = new URL(process.env.LOOKUP_URL);
     lookupUrl.searchParams.append("postcode", process.env.POSTCODE);
 
