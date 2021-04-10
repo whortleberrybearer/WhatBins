@@ -5,6 +5,8 @@
     using System.Linq;
     using Bogus;
     using FluentAssertions;
+    using FluentResults;
+    using FluentResults.Extensions.FluentAssertions;
     using Moq;
     using WhatBins.Extractors.ChorleyCouncil.UnitTests.Fakes;
     using WhatBins.Types;
@@ -63,9 +65,9 @@
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                bool result = this.sut.CanExtract(postCode);
+                Result<bool> result = this.sut.CanExtract(postCode);
 
-                result.Should().BeTrue();
+                result.Should().BeSuccess().And.Subject.Value.Should().BeTrue();
             }
 
             [Theory]
@@ -76,9 +78,9 @@
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                bool result = this.sut.CanExtract(postCode);
+                Result<bool> result = this.sut.CanExtract(postCode);
 
-                result.Should().BeFalse();
+                result.Should().BeSuccess().And.Subject.Value.Should().BeFalse();
             }
         }
 
@@ -106,9 +108,9 @@
 
                 this.SetupRequestPageMocks(RequestResult.Failed);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().BeEquivalentTo(new ExtractResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new ExtractResult(CollectionState.Unsupported));
             }
 
             [Fact]
@@ -118,9 +120,9 @@
 
                 this.SetupRequestPostCodeLookupMocks(postCode, RequestResult.Failed);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().BeEquivalentTo(new ExtractResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new ExtractResult(CollectionState.Unsupported));
             }
 
             [Fact]
@@ -130,9 +132,9 @@
 
                 this.SetupRequestUprnLookupMocks(postCode, false, RequestResult.Failed);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().BeEquivalentTo(new ExtractResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new ExtractResult(CollectionState.Unsupported));
             }
 
             [Fact]
@@ -142,9 +144,9 @@
 
                 this.SetupRequestUprnLookupMocks(postCode, true, RequestResult.Failed);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().BeEquivalentTo(new ExtractResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new ExtractResult(CollectionState.Unsupported));
             }
 
             [Fact]
@@ -154,9 +156,9 @@
 
                 this.SetupRequestCollectionLookupsMocks(postCode, RequestResult.Failed);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().BeEquivalentTo(new ExtractResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new ExtractResult(CollectionState.Unsupported));
             }
 
             [Fact]
@@ -166,9 +168,9 @@
 
                 this.SetupExtractCollectionsMocks(postCode, false, Enumerable.Empty<Collection>());
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().BeEquivalentTo(new ExtractResult(CollectionState.NoCollection));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new ExtractResult(CollectionState.NoCollection));
             }
 
             [Fact]
@@ -178,9 +180,9 @@
 
                 this.SetupExtractCollectionsMocks(postCode, true, Enumerable.Empty<Collection>());
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().BeEquivalentTo(new ExtractResult(CollectionState.NoCollection));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new ExtractResult(CollectionState.NoCollection));
             }
 
             [Fact]
@@ -191,9 +193,9 @@
 
                 this.SetupExtractCollectionsMocks(postCode, true, collections);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().BeEquivalentTo(new ExtractResult(CollectionState.Collection, collections));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new ExtractResult(CollectionState.Collection, collections));
             }
 
             private void SetupRequestPageMocks(RequestResult result)

@@ -51,7 +51,7 @@ namespace WhatBins.Tests
                 {
                     collectionExtractorMock
                         .Setup(extractor => extractor.CanExtract(postCode))
-                        .Returns(false);
+                        .Returns(Result.Ok(false));
                 }
 
                 Result<LookupResult> result = this.sut.Lookup(postCode);
@@ -68,11 +68,11 @@ namespace WhatBins.Tests
                 {
                     collectionExtractorMock
                         .Setup(extractor => extractor.CanExtract(postCode))
-                        .Returns(true);
+                        .Returns(Result.Ok(true));
 
                     collectionExtractorMock
                         .Setup(extractor => extractor.Extract(postCode))
-                        .Returns(new ExtractResult(CollectionState.Unsupported));
+                        .Returns(Result.Ok(new ExtractResult(CollectionState.Unsupported)));
                 }
 
                 Result<LookupResult> result = this.sut.Lookup(postCode);
@@ -94,17 +94,17 @@ namespace WhatBins.Tests
                 {
                     collectionExtractorMock
                         .Setup(extractor => extractor.CanExtract(postCode))
-                        .Returns(true);
+                        .Returns(Result.Ok(true));
                 }
 
                 // Once nothing has been found for the first check, the seconds once should be returned.
                 // The third should never be called as a result was found with the second.
                 this.collectionExtractorMocks[0]
                     .Setup(extractor => extractor.Extract(postCode))
-                    .Returns(new ExtractResult(CollectionState.Unsupported));
+                    .Returns(Result.Ok(new ExtractResult(CollectionState.Unsupported)));
                 this.collectionExtractorMocks[1]
                     .Setup(extractor => extractor.Extract(postCode))
-                    .Returns(new ExtractResult(collectionState, collections));
+                    .Returns(Result.Ok(new ExtractResult(collectionState, collections)));
 
                 Result<LookupResult> result = this.sut.Lookup(postCode);
 

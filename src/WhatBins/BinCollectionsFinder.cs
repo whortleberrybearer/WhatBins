@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using FluentResults;
     using WhatBins.Types;
 
@@ -17,20 +16,32 @@
 
         public Result<LookupResult> Lookup(PostCode postCode)
         {
-            ExtractResult? result = null;
-
-            foreach (ICollectionExtractor collectionExtractor in this.collectionExtractors.Where(extractor => extractor.CanExtract(postCode)))
+            foreach (ICollectionExtractor collectionExtractor in this.collectionExtractors)
             {
-                result = collectionExtractor.Extract(postCode);
+                Result<bool> canExtractResult = collectionExtractor.CanExtract(postCode);
 
-                // If the result is unsupported, we have not found the correct extractor to check, so keep checking.
-                if (result.State != CollectionState.Unsupported)
+                if (canExtractResult.IsSuccess && canExtractResult.Value)
                 {
-                    break;
+                    Result<ExtractResult> extractResult = collectionExtractor.Extract(postCode);
+
+                    if (extractResult.IsSuccess && (extractResult.Value.State != CollectionState.Unsupported))
+                    {
+                        // If the result is unsupported, we have not found the correct extractor to check, so keep checking.
+                        return extractResult.Value.ToLookupResult().ToResult();
+                    }
+                    else if (extractResult.IsFailed)
+                    {
+                        // TODO: Log any failures.
+                    }
+                }
+                else if (canExtractResult.IsFailed)
+                {
+                    // TODO: Log any failures.
                 }
             }
 
-            return Result.Ok(result?.ToLookupResult() ?? new LookupResult(CollectionState.Unsupported));
+            // As we have failed to make a successful extraction, the postcode must be unsupported.
+            return Result.Ok(new LookupResult(CollectionState.Unsupported));
         }
     }
 }

@@ -1,9 +1,11 @@
 ﻿namespace WhatBins.Types
 {
+    using FluentResults;
+
     public interface ICollectionExtractor
     {
-        ExtractResult Extract(PostCode postCode);
+        Result<ExtractResult> Extract(PostCode postCode);
 
-        bool CanExtract(PostCode postCode);
+        Result<bool> CanExtract(PostCode postCode);
     }
 }

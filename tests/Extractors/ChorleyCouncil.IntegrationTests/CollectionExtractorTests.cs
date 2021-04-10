@@ -2,6 +2,8 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
 {
     using FluentAssertions;
     using FluentAssertions.Execution;
+    using FluentResults;
+    using FluentResults.Extensions.FluentAssertions;
     using WhatBins.Extractors.ChorleyCouncil;
     using WhatBins.Types;
     using Xunit;
@@ -21,10 +23,10 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().NotBeNull();
-                result.State.Should().Be(CollectionState.Unsupported);
+                // TODO: Could be a value object compare?
+                result.Should().BeSuccess().And.Subject.Value.State.Should().Be(CollectionState.Unsupported);
             }
 
             [Theory]
@@ -34,10 +36,10 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().NotBeNull();
-                result.State.Should().Be(CollectionState.NoCollection);
+                // TODO: Could be a value object compare?
+                result.Should().BeSuccess().And.Subject.Value.State.Should().Be(CollectionState.NoCollection);
             }
 
             [Theory]
@@ -47,14 +49,15 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<ExtractResult> result = this.sut.Extract(postCode);
 
-                result.Should().NotBeNull();
+                // TODO: Could be a value object compare?
+                result.Should().BeSuccess();
 
                 using (new AssertionScope())
                 {
-                    result.State.Should().Be(CollectionState.Collection);
-                    result.Collections.Should().NotBeEmpty();
+                    result.Value.State.Should().Be(CollectionState.Collection);
+                    result.Value.Collections.Should().NotBeEmpty();
                 }
             }
         }

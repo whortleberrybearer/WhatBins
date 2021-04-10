@@ -5,6 +5,7 @@
     using System.Linq;
     using WhatBins.Types;
 
+    // TODO: This and the extract result can be condensed.
     public class LookupResult
     {
         public LookupResult(CollectionState state)
