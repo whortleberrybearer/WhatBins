@@ -1,6 +1,8 @@
 ﻿namespace WhatBins.Extractors.ChorleyCouncil
 {
     using System;
+    using FluentResults;
+    using HtmlAgilityPack;
     using RestSharp;
     using WhatBins.Types;
 
@@ -23,42 +25,45 @@
             this.requestBuilder = requestBuilder ?? throw new ArgumentNullException(nameof(requestBuilder));
         }
 
-        public RequestResult RequestCollectionsPage()
+        public Result<HtmlDocument> RequestCollectionsPage()
         {
             IRestRequest request = this.requestBuilder.BuildCollectionsPageRequest();
 
             return CreateRequestResult(this.client.Get(request));
         }
 
-        public RequestResult RequestPostCodeLookup(PostCode postCode, RequestState requestState)
+        public Result<HtmlDocument> RequestPostCodeLookup(PostCode postCode, RequestState requestState)
         {
             IRestRequest request = this.requestBuilder.BuildPostCodeLookupRequest(postCode, requestState);
 
             return CreateRequestResult(this.client.Post(request));
         }
 
-        public RequestResult RequestUprnLookup(Uprn uprn, RequestState requestState)
+        public Result<HtmlDocument> RequestUprnLookup(Uprn uprn, RequestState requestState)
         {
             IRestRequest request = this.requestBuilder.BuildUprnLookupRequest(uprn, requestState);
 
             return CreateRequestResult(this.client.Post(request));
         }
 
-        public RequestResult RequestCollectionsLookup(RequestState requestState)
+        public Result<HtmlDocument> RequestCollectionsLookup(RequestState requestState)
         {
             IRestRequest request = this.requestBuilder.BuildCollectionsLookupRequest(requestState);
 
             return CreateRequestResult(this.client.Post(request));
         }
 
-        private static RequestResult CreateRequestResult(IRestResponse response)
+        private static Result<HtmlDocument> CreateRequestResult(IRestResponse response)
         {
             if (!response.IsSuccessful)
             {
-                return RequestResult.Failed;
+                return Result.Fail(response.ErrorMessage);
             }
 
-            return RequestResult.Succeeded(response.Content);
+            HtmlDocument htmlDocument = new HtmlDocument();
+            htmlDocument.LoadHtml(response.Content);
+
+            return Result.Ok(htmlDocument);
         }
     }
 }

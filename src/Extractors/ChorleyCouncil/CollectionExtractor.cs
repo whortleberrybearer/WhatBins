@@ -31,17 +31,18 @@
 
         public Result<ExtractResult> Extract(PostCode postCode)
         {
-            RequestResult requestResult = this.requestor.RequestCollectionsPage();
+            Result<HtmlDocument> requestResult = this.requestor.RequestCollectionsPage();
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ProcessCollectionsPageAndContinue(postCode, requestResult.HtmlDocument!);
+            return EnsureRequestSucceeded(requestResult) ?? this.ProcessCollectionsPageAndContinue(postCode, requestResult.Value!);
         }
 
-        private static Result<ExtractResult>? EnsureRequestSucceeded(RequestResult requestResult)
+        private static Result<ExtractResult>? EnsureRequestSucceeded(Result<HtmlDocument> requestResult)
         {
-            if (!requestResult.Success)
+            if (requestResult.IsFailed)
             {
                 // We have failed with our initial request, so just report as unsupported at this time.
                 // It may be the page is no longer available.
+                // TODO: Log failure of request
                 return Result.Ok(new ExtractResult(CollectionState.Unsupported));
             }
 
@@ -50,11 +51,11 @@
 
         private Result<ExtractResult> ProcessCollectionsPageAndContinue(PostCode postCode, HtmlDocument htmlDocument)
         {
-            RequestResult requestResult = this.requestor.RequestPostCodeLookup(
+            Result<HtmlDocument> requestResult = this.requestor.RequestPostCodeLookup(
                 postCode,
                 this.parser.ExtractRequestState(htmlDocument));
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ProcessPostCodeLookupAndContinue(requestResult.HtmlDocument!);
+            return EnsureRequestSucceeded(requestResult) ?? this.ProcessPostCodeLookupAndContinue(requestResult.Value!);
         }
 
         private Result<ExtractResult> ProcessPostCodeLookupAndContinue(HtmlDocument htmlDocument)
@@ -65,19 +66,19 @@
                 return Result.Ok(new ExtractResult(CollectionState.Unsupported));
             }
 
-            RequestResult requestResult = this.requestor.RequestUprnLookup(
+            Result<HtmlDocument> requestResult = this.requestor.RequestUprnLookup(
                 this.parser.ExtractUprn(htmlDocument),
                 this.parser.ExtractRequestState(htmlDocument));
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ProcessUprnLookupAndContinue(requestResult.HtmlDocument!);
+            return EnsureRequestSucceeded(requestResult) ?? this.ProcessUprnLookupAndContinue(requestResult.Value!);
         }
 
         private Result<ExtractResult> ProcessUprnLookupAndContinue(HtmlDocument htmlDocument)
         {
-            RequestResult requestResult = this.requestor.RequestCollectionsLookup(
+            Result<HtmlDocument> requestResult = this.requestor.RequestCollectionsLookup(
                 this.parser.ExtractRequestState(htmlDocument));
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ExtractCollections(requestResult.HtmlDocument!);
+            return EnsureRequestSucceeded(requestResult) ?? this.ExtractCollections(requestResult.Value!);
         }
 
         private Result<ExtractResult> ExtractCollections(HtmlDocument htmlDocument)

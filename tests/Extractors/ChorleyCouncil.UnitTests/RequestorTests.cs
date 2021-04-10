@@ -4,6 +4,9 @@
     using System.Net;
     using Bogus;
     using FluentAssertions;
+    using FluentResults;
+    using FluentResults.Extensions.FluentAssertions;
+    using HtmlAgilityPack;
     using Moq;
     using RestSharp;
     using WhatBins.Extractors.ChorleyCouncil.UnitTests.Fakes;
@@ -32,13 +35,13 @@
             };
         }
 
-        private static void ValidateSucceededResult(string html, RequestResult result)
+        private static void ValidateSucceededResult(string html, Result<HtmlDocument> result)
         {
             // Need to compare the document manually as the equivalent comparison with fail due to the nature of the object.
             // The actual HTML the document parsed should match and can be compared against.
-            result.Should().BeEquivalentTo(RequestResult.Succeeded(html), config => config.Excluding(result => result.HtmlDocument));
-            result.HtmlDocument.Should().NotBeNull();
-            result.HtmlDocument!.ParsedText.Should().Be(html);
+            result.Should().BeSuccess();
+            result.Value.Should().NotBeNull();
+            result.Value!.ParsedText.Should().Be(html);
         }
 
         public class ConstructorTests
@@ -84,9 +87,9 @@
             {
                 this.SetupMocks(CreateFailedResponse());
 
-                RequestResult result = this.sut.RequestCollectionsPage();
+                Result<HtmlDocument> result = this.sut.RequestCollectionsPage();
 
-                result.Should().BeEquivalentTo(RequestResult.Failed);
+                result.Should().BeFailure();
             }
 
             [Fact]
@@ -96,7 +99,7 @@
 
                 this.SetupMocks(CreateOkResponse(html));
 
-                RequestResult result = this.sut.RequestCollectionsPage();
+                Result<HtmlDocument> result = this.sut.RequestCollectionsPage();
 
                 ValidateSucceededResult(html, result);
             }
@@ -137,9 +140,9 @@
 
                 this.SetupMocks(postCode, requestState, CreateFailedResponse());
 
-                RequestResult result = this.sut.RequestPostCodeLookup(postCode, requestState);
+                Result<HtmlDocument> result = this.sut.RequestPostCodeLookup(postCode, requestState);
 
-                result.Should().BeEquivalentTo(RequestResult.Failed);
+                result.Should().BeFailure();
             }
 
             [Fact]
@@ -151,7 +154,7 @@
 
                 this.SetupMocks(postCode, requestState, CreateOkResponse(html));
 
-                RequestResult result = this.sut.RequestPostCodeLookup(postCode, requestState);
+                Result<HtmlDocument> result = this.sut.RequestPostCodeLookup(postCode, requestState);
 
                 ValidateSucceededResult(html, result);
             }
@@ -192,9 +195,9 @@
 
                 this.SetupMocks(uprn, requestState, CreateFailedResponse());
 
-                RequestResult result = this.sut.RequestUprnLookup(uprn, requestState);
+                Result<HtmlDocument> result = this.sut.RequestUprnLookup(uprn, requestState);
 
-                result.Should().BeEquivalentTo(RequestResult.Failed);
+                result.Should().BeFailure();
             }
 
             [Fact]
@@ -206,7 +209,7 @@
 
                 this.SetupMocks(uprn, requestState, CreateOkResponse(html));
 
-                RequestResult result = this.sut.RequestUprnLookup(uprn, requestState);
+                Result<HtmlDocument> result = this.sut.RequestUprnLookup(uprn, requestState);
 
                 ValidateSucceededResult(html, result);
             }
@@ -246,9 +249,9 @@
 
                 this.SetupMocks(requestState, CreateFailedResponse());
 
-                RequestResult result = this.sut.RequestCollectionsLookup(requestState);
+                Result<HtmlDocument> result = this.sut.RequestCollectionsLookup(requestState);
 
-                result.Should().BeEquivalentTo(RequestResult.Failed);
+                result.Should().BeFailure();
             }
 
             [Fact]
@@ -259,7 +262,7 @@
 
                 this.SetupMocks(requestState, CreateOkResponse(html));
 
-                RequestResult result = this.sut.RequestCollectionsLookup(requestState);
+                Result<HtmlDocument> result = this.sut.RequestCollectionsLookup(requestState);
 
                 ValidateSucceededResult(html, result);
             }
