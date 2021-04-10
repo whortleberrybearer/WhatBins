@@ -5,6 +5,8 @@ namespace WhatBins.Tests
     using System.Linq;
     using Bogus;
     using FluentAssertions;
+    using FluentResults;
+    using FluentResults.Extensions.FluentAssertions;
     using Moq;
     using WhatBins.Types;
     using WhatBins.Types.Fakes;
@@ -52,9 +54,9 @@ namespace WhatBins.Tests
                         .Returns(false);
                 }
 
-                LookupResult result = this.sut.Lookup(postCode);
+                Result<LookupResult> result = this.sut.Lookup(postCode);
 
-                result.Should().BeEquivalentTo(new LookupResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new LookupResult(CollectionState.Unsupported));
             }
 
             [Fact]
@@ -73,9 +75,9 @@ namespace WhatBins.Tests
                         .Returns(new ExtractResult(CollectionState.Unsupported));
                 }
 
-                LookupResult result = this.sut.Lookup(postCode);
+                Result<LookupResult> result = this.sut.Lookup(postCode);
 
-                result.Should().BeEquivalentTo(new LookupResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new LookupResult(CollectionState.Unsupported));
 
                 this.mockRepository.VerifyAll();
             }
@@ -104,9 +106,9 @@ namespace WhatBins.Tests
                     .Setup(extractor => extractor.Extract(postCode))
                     .Returns(new ExtractResult(collectionState, collections));
 
-                LookupResult result = this.sut.Lookup(postCode);
+                Result<LookupResult> result = this.sut.Lookup(postCode);
 
-                result.Should().BeEquivalentTo(new LookupResult(collectionState, collections));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new LookupResult(collectionState, collections));
             }
         }
     }

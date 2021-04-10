@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Net;
     using System.Threading.Tasks;
+    using FluentResults;
     using Google.Cloud.Functions.Framework;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Logging;
@@ -59,14 +60,16 @@
             this.logger.LogInformation("Looking up collections for {postcode}", postCode);
 
             // As we now have a valid post code, try and get the collections.
-            LookupResult lookupResult = this.binCollectionsFinder.Lookup(postCode);
+            Result<LookupResult> lookupResult = this.binCollectionsFinder.Lookup(postCode);
 
             // Serialiser settings required to covert dates and enums to suitable values.
             JsonSerializerSettings settings = new JsonSerializerSettings();
             settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
             settings.Converters.Add(new StringEnumConverter());
 
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(lookupResult, settings));
+            // If the lookup failed, return that the lookup is unsupported.
+            await context.Response.WriteAsync(
+                JsonConvert.SerializeObject(lookupResult.ValueOrDefault ?? new LookupResult(CollectionState.Unsupported), settings));
         }
     }
 }

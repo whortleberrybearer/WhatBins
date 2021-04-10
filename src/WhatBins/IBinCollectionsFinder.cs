@@ -1,9 +1,10 @@
 ﻿namespace WhatBins
 {
+    using FluentResults;
     using WhatBins.Types;
 
     public interface IBinCollectionsFinder
     {
-        LookupResult Lookup(PostCode postCode);
+        Result<LookupResult> Lookup(PostCode postCode);
     }
 }

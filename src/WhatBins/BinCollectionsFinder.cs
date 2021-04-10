@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using FluentResults;
     using WhatBins.Types;
 
     public class BinCollectionsFinder : IBinCollectionsFinder
@@ -14,7 +15,7 @@
             this.collectionExtractors = collectionExtractors ?? throw new ArgumentNullException(nameof(collectionExtractors));
         }
 
-        public LookupResult Lookup(PostCode postCode)
+        public Result<LookupResult> Lookup(PostCode postCode)
         {
             ExtractResult? result = null;
 
@@ -29,7 +30,7 @@
                 }
             }
 
-            return result?.ToLookupResult() ?? new LookupResult(CollectionState.Unsupported);
+            return Result.Ok(result?.ToLookupResult() ?? new LookupResult(CollectionState.Unsupported));
         }
     }
 }
