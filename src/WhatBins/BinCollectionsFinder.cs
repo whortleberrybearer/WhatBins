@@ -27,6 +27,7 @@
                     if (extractResult.IsSuccess && (extractResult.Value.State != CollectionState.Unsupported))
                     {
                         // If the result is unsupported, we have not found the correct extractor to check, so keep checking.
+                        // TODO: This could be refactored to return the same type.
                         return extractResult.Value.ToLookupResult().ToResult();
                     }
                     else if (extractResult.IsFailed)

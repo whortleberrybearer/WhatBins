@@ -5,6 +5,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using FluentResults;
     using HtmlAgilityPack;
     using NodaTime;
     using NodaTime.Text;
@@ -21,40 +22,61 @@ namespace WhatBins.Extractors.ChorleyCouncil
             { "Green%20Bin2", BinColour.Green },
         };
 
-        public bool IsWithinBoundary(HtmlDocument htmlDocument)
+        public Result<bool> IsWithinBoundary(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
                 throw new ArgumentNullException(nameof(htmlDocument));
             }
 
-            return !htmlDocument.ParsedText.Contains("No addresses found within Chorley Council boundaries for this address.");
+            return Result.Ok(!htmlDocument.ParsedText.Contains("No addresses found within Chorley Council boundaries for this address."));
         }
 
-        public bool DoesCollectAtAddress(HtmlDocument htmlDocument)
+        public Result<bool> DoesCollectAtAddress(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
                 throw new ArgumentNullException(nameof(htmlDocument));
             }
 
-            return !htmlDocument.ParsedText.Contains("Our records indicate that we don't collect waste from your property");
+            return Result.Ok(!htmlDocument.ParsedText.Contains("Our records indicate that we don't collect waste from your property"));
         }
 
-        public RequestState ExtractRequestState(HtmlDocument htmlDocument)
+        public Result<RequestState> ExtractRequestState(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
                 throw new ArgumentNullException(nameof(htmlDocument));
             }
 
-            return new RequestState(
-                htmlDocument.GetElementbyId("__VIEWSTATE").GetAttributeValue("value", string.Empty),
-                htmlDocument.GetElementbyId("__VIEWSTATEGENERATOR").GetAttributeValue("value", string.Empty),
-                htmlDocument.GetElementbyId("__EVENTVALIDATION").GetAttributeValue("value", string.Empty));
+            HtmlNode? viewStateNode = htmlDocument.GetElementbyId("__VIEWSTATE");
+
+            if (viewStateNode is null)
+            {
+                Result.Fail("ViewState node not found.");
+            }
+
+            HtmlNode? viewStateGeneratorNode = htmlDocument.GetElementbyId("__VIEWSTATEGENERATOR");
+
+            if (viewStateGeneratorNode is null)
+            {
+                Result.Fail("ViewStateGenerator node not found.");
+            }
+
+            HtmlNode? eventValidationNode = htmlDocument.GetElementbyId("__EVENTVALIDATION");
+
+            if (eventValidationNode is null)
+            {
+                Result.Fail("EventValidation node not found.");
+            }
+
+            return Result.Ok(new RequestState(
+                viewStateNode.GetAttributeValue("value", string.Empty),
+                viewStateGeneratorNode.GetAttributeValue("value", string.Empty),
+                eventValidationNode.GetAttributeValue("value", string.Empty)));
         }
 
-        public Uprn ExtractUprn(HtmlDocument htmlDocument)
+        public Result<Uprn> ExtractUprn(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
@@ -62,12 +84,17 @@ namespace WhatBins.Extractors.ChorleyCouncil
             }
 
             // This runs on the assumption that all the addresses in the post code are collected at the same time, so can just select the first.
-            HtmlNode selectedOption = htmlDocument.DocumentNode.SelectSingleNode(".//*[contains(@name, 'ctl00$MainContent$addressSearch$ddlAddress')]/option[2]");
+            HtmlNode? selectedOption = htmlDocument.DocumentNode.SelectSingleNode(".//*[contains(@name, 'ctl00$MainContent$addressSearch$ddlAddress')]/option[2]");
 
-            return new Uprn(selectedOption.GetAttributeValue("value", string.Empty));
+            if (selectedOption is null)
+            {
+                return Result.Fail("Uprn node not found.");
+            }
+
+            return Result.Ok(new Uprn(selectedOption.GetAttributeValue("value", string.Empty)));
         }
 
-        public IEnumerable<Collection> ExtractCollections(HtmlDocument htmlDocument)
+        public Result<IEnumerable<Collection>> ExtractCollections(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
