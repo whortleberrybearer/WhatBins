@@ -23,7 +23,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                Result<ExtractResult> result = this.sut.Extract(postCode);
+                Result<CollectionExtraction> result = this.sut.Extract(postCode);
 
                 // TODO: Could be a value object compare?
                 result.Should().BeSuccess().And.Subject.Value.State.Should().Be(CollectionState.Unsupported);
@@ -36,7 +36,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                Result<ExtractResult> result = this.sut.Extract(postCode);
+                Result<CollectionExtraction> result = this.sut.Extract(postCode);
 
                 // TODO: Could be a value object compare?
                 result.Should().BeSuccess().And.Subject.Value.State.Should().Be(CollectionState.NoCollection);
@@ -49,7 +49,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                Result<ExtractResult> result = this.sut.Extract(postCode);
+                Result<CollectionExtraction> result = this.sut.Extract(postCode);
 
                 // TODO: Could be a value object compare?
                 result.Should().BeSuccess();

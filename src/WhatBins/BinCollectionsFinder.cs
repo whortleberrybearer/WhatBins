@@ -14,7 +14,7 @@
             this.collectionExtractors = collectionExtractors ?? throw new ArgumentNullException(nameof(collectionExtractors));
         }
 
-        public Result<LookupResult> Lookup(PostCode postCode)
+        public Result<CollectionExtraction> Lookup(PostCode postCode)
         {
             foreach (ICollectionExtractor collectionExtractor in this.collectionExtractors)
             {
@@ -22,13 +22,12 @@
 
                 if (canExtractResult.IsSuccess && canExtractResult.Value)
                 {
-                    Result<ExtractResult> extractResult = collectionExtractor.Extract(postCode);
+                    Result<CollectionExtraction> extractResult = collectionExtractor.Extract(postCode);
 
                     if (extractResult.IsSuccess && (extractResult.Value.State != CollectionState.Unsupported))
                     {
                         // If the result is unsupported, we have not found the correct extractor to check, so keep checking.
-                        // TODO: This could be refactored to return the same type.
-                        return extractResult.Value.ToLookupResult().ToResult();
+                        return extractResult;
                     }
                     else if (extractResult.IsFailed)
                     {
@@ -42,7 +41,8 @@
             }
 
             // As we have failed to make a successful extraction, the postcode must be unsupported.
-            return Result.Ok(new LookupResult(CollectionState.Unsupported));
+            // TODO: Is this correct?
+            return Result.Ok(CollectionExtraction.Unsupported);
         }
     }
 }

@@ -5,6 +5,6 @@
 
     public interface IBinCollectionsFinder
     {
-        Result<LookupResult> Lookup(PostCode postCode);
+        Result<CollectionExtraction> Lookup(PostCode postCode);
     }
 }

@@ -60,7 +60,7 @@
             this.logger.LogInformation("Looking up collections for {postcode}", postCode);
 
             // As we now have a valid post code, try and get the collections.
-            Result<LookupResult> lookupResult = this.binCollectionsFinder.Lookup(postCode);
+            Result<CollectionExtraction> lookupResult = this.binCollectionsFinder.Lookup(postCode);
 
             // Serialiser settings required to covert dates and enums to suitable values.
             JsonSerializerSettings settings = new JsonSerializerSettings();
@@ -68,8 +68,9 @@
             settings.Converters.Add(new StringEnumConverter());
 
             // If the lookup failed, return that the lookup is unsupported.
+            // TODO: Is this correct?
             await context.Response.WriteAsync(
-                JsonConvert.SerializeObject(lookupResult.ValueOrDefault ?? new LookupResult(CollectionState.Unsupported), settings));
+                JsonConvert.SerializeObject(lookupResult.ValueOrDefault ?? CollectionExtraction.Unsupported, settings));
         }
     }
 }

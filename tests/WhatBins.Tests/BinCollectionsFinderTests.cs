@@ -54,9 +54,9 @@ namespace WhatBins.Tests
                         .Returns(Result.Ok(false));
                 }
 
-                Result<LookupResult> result = this.sut.Lookup(postCode);
+                Result<CollectionExtraction> result = this.sut.Lookup(postCode);
 
-                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new LookupResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(CollectionExtraction.Unsupported);
             }
 
             [Fact]
@@ -72,12 +72,12 @@ namespace WhatBins.Tests
 
                     collectionExtractorMock
                         .Setup(extractor => extractor.Extract(postCode))
-                        .Returns(Result.Ok(new ExtractResult(CollectionState.Unsupported)));
+                        .Returns(Result.Ok(CollectionExtraction.Unsupported));
                 }
 
-                Result<LookupResult> result = this.sut.Lookup(postCode);
+                Result<CollectionExtraction> result = this.sut.Lookup(postCode);
 
-                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new LookupResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(CollectionExtraction.Unsupported);
 
                 this.mockRepository.VerifyAll();
             }
@@ -101,14 +101,14 @@ namespace WhatBins.Tests
                 // The third should never be called as a result was found with the second.
                 this.collectionExtractorMocks[0]
                     .Setup(extractor => extractor.Extract(postCode))
-                    .Returns(Result.Ok(new ExtractResult(CollectionState.Unsupported)));
+                    .Returns(Result.Ok(CollectionExtraction.Unsupported));
                 this.collectionExtractorMocks[1]
                     .Setup(extractor => extractor.Extract(postCode))
-                    .Returns(Result.Ok(new ExtractResult(collectionState, collections)));
+                    .Returns(Result.Ok(new CollectionExtraction(collections)));
 
-                Result<LookupResult> result = this.sut.Lookup(postCode);
+                Result<CollectionExtraction> result = this.sut.Lookup(postCode);
 
-                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new LookupResult(collectionState, collections));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new CollectionExtraction(collections));
             }
         }
     }

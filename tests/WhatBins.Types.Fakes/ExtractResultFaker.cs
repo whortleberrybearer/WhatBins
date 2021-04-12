@@ -1,30 +1,30 @@
-﻿namespace WhatBins.Types.Fakes
-{
-    using Bogus;
-    using WhatBins.Types;
+﻿////namespace WhatBins.Types.Fakes
+////{
+////    using Bogus;
+////    using WhatBins.Types;
 
-    public class ExtractResultFaker : Faker<ExtractResult>
-    {
-        private readonly CollectionStateFaker collectionStateFaker = new CollectionStateFaker();
-        private readonly CollectionFaker collectionFaker = new CollectionFaker();
+////    public class ExtractResultFaker : Faker<CollectionExtraction>
+////    {
+////        private readonly CollectionStateFaker collectionStateFaker = new CollectionStateFaker();
+////        private readonly CollectionFaker collectionFaker = new CollectionFaker();
 
-        public ExtractResultFaker()
-        {
-            this.StrictMode(true);
+////        public ExtractResultFaker()
+////        {
+////            this.StrictMode(true);
 
-            this.CustomInstantiator(faker =>
-            {
-                CollectionState collectionState = this.collectionStateFaker.Generate();
+////            this.CustomInstantiator(faker =>
+////            {
+////                CollectionState collectionState = this.collectionStateFaker.Generate();
 
-                if (collectionState != CollectionState.Collection)
-                {
-                    return new ExtractResult(collectionState);
-                }
+////                if (collectionState != CollectionState.Collection)
+////                {
+////                    return new CollectionExtraction(collectionState);
+////                }
 
-                return new ExtractResult(collectionState, this.collectionFaker.Generate(3));
-            });
+////                return new CollectionExtraction(collectionState, this.collectionFaker.Generate(3));
+////            });
 
-            this.AssertConfigurationIsValid();
-        }
-    }
-}
+////            this.AssertConfigurationIsValid();
+////        }
+////    }
+////}

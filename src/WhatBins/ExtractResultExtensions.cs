@@ -1,12 +1,12 @@
-﻿namespace WhatBins
-{
-    using WhatBins.Types;
+﻿////namespace WhatBins
+////{
+////    using WhatBins.Types;
 
-    public static class ExtractResultExtensions
-    {
-        public static LookupResult ToLookupResult(this ExtractResult extractResult)
-        {
-            return new LookupResult(extractResult.State, extractResult.Collections);
-        }
-    }
-}
+////    public static class ExtractResultExtensions
+////    {
+////        public static LookupResult ToLookupResult(this CollectionExtraction extractResult)
+////        {
+////            return new LookupResult(extractResult.State, extractResult.Collections);
+////        }
+////    }
+////}
