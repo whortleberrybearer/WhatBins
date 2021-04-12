@@ -87,7 +87,6 @@
 
         public class ExtractTests
         {
-            private readonly Faker faker;
             private readonly MockRepository mockRepository;
             private readonly Mock<IRequestor> requestorMock;
             private readonly Mock<IParser> parserMock;
@@ -95,7 +94,6 @@
 
             public ExtractTests()
             {
-                this.faker = new Faker();
                 this.mockRepository = new MockRepository(MockBehavior.Strict);
                 this.requestorMock = this.mockRepository.Create<IRequestor>();
                 this.parserMock = this.mockRepository.Create<IParser>();
@@ -171,7 +169,7 @@
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
-                result.Should().BeSuccess().And.HaveValue(Collection.Unsupported);
+                result.Should().BeSuccess().And.HaveValue(Collection.NoCollection);
             }
 
             [Fact]
@@ -183,7 +181,7 @@
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
-                result.Should().BeSuccess().And.HaveValue(Collection.Unsupported);
+                result.Should().BeSuccess().And.HaveValue(Collection.NoCollection);
             }
 
             [Fact]
@@ -196,7 +194,7 @@
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
-                result.Should().BeSuccess().And.HaveValue(Collection.Unsupported);
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new Collection(collectionDays));
             }
 
             private void SetupRequestPageMocks(Result<HtmlDocument> result)
