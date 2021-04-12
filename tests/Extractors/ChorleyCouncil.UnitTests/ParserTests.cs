@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using FluentAssertions;
+    using FluentResults;
+    using FluentResults.Extensions.FluentAssertions;
     using HtmlAgilityPack;
     using NodaTime;
     using WhatBins.Types;
@@ -49,18 +51,18 @@
             [Fact]
             public void ShouldReturnFalseWhenDocumentContainsExpectedText()
             {
-                bool result = this.sut.IsWithinBoundary(NotSupportedHtmlDocument);
+                Result<bool> result = this.sut.IsWithinBoundary(NotSupportedHtmlDocument);
 
-                result.Should().BeFalse();
+                result.Should().BeSuccess().And.Subject.Value.Should().BeFalse();
             }
 
             [Theory]
             [MemberData(nameof(SupportedHtmlDocuments))]
             public void ShouldReturnTrueWhenDocumentDoesNotContainsExpectedText(HtmlDocument htmlDocument)
             {
-                bool result = this.sut.IsWithinBoundary(htmlDocument);
+                Result<bool> result = this.sut.IsWithinBoundary(htmlDocument);
 
-                result.Should().BeTrue();
+                result.Should().BeSuccess().And.Subject.Value.Should().BeTrue();
             }
         }
 
@@ -79,17 +81,17 @@
             [Fact]
             public void ShouldReturnFalseWhenDocumentContainsExpectedText()
             {
-                bool result = this.sut.DoesCollectAtAddress(NoCollectionsHtmlDocument);
+                Result<bool> result = this.sut.DoesCollectAtAddress(NoCollectionsHtmlDocument);
 
-                result.Should().BeFalse();
+                result.Should().BeSuccess().And.Subject.Value.Should().BeFalse();
             }
 
             [Fact]
             public void ShouldReturnTrueWhenDocumentDoesNotContainsExpectedText()
             {
-                bool result = this.sut.DoesCollectAtAddress(CollectionsHtmlDocument);
+                Result<bool> result = this.sut.DoesCollectAtAddress(CollectionsHtmlDocument);
 
-                result.Should().BeTrue();
+                result.Should().BeSuccess().And.Subject.Value.Should().BeTrue();
             }
         }
 
@@ -140,9 +142,9 @@
             [MemberData(nameof(HtmlDocuments))]
             public void ShouldExtractRequestStates(HtmlDocument htmlDocument, RequestState expectedResult)
             {
-                RequestState result = this.sut.ExtractRequestState(htmlDocument);
+                Result<RequestState> result = this.sut.ExtractRequestState(htmlDocument);
 
-                result.Should().Be(expectedResult);
+                result.Should().BeSuccess().And.HaveValue(expectedResult);
             }
         }
 
@@ -161,9 +163,9 @@
             [Fact]
             public void ShouldExtractUprn()
             {
-                Uprn result = this.sut.ExtractUprn(UprnLookupHtmlDocument);
+                Result<Uprn> result = this.sut.ExtractUprn(UprnLookupHtmlDocument);
 
-                result.Should().Be(new Uprn("UPRN100010362948"));
+                result.Should().BeSuccess().And.HaveValue(new Uprn("UPRN100010362948"));
             }
         }
 
@@ -182,7 +184,7 @@
             [Fact]
             public void ShouldExtractCollections()
             {
-                IEnumerable<Collection> result = this.sut.ExtractCollections(CollectionsHtmlDocument);
+                Result<IEnumerable<Collection>> result = this.sut.ExtractCollections(CollectionsHtmlDocument);
 
                 var expectedResult = new Collection[]
                 {
@@ -197,7 +199,7 @@
                     new Collection(new LocalDate(2021, 5, 18), new Bin[] { new Bin(BinColour.Blue) }),
                 };
 
-                result.Should().BeEquivalentTo(expectedResult);
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(expectedResult);
             }
         }
     }

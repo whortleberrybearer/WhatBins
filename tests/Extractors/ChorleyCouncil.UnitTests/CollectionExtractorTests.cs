@@ -215,7 +215,7 @@
 
                 this.parserMock
                     .Setup(parser => parser.ExtractRequestState(previousRequestResult.Value!))
-                    .Returns(requestState);
+                    .Returns(Result.Ok(requestState));
 
                 this.requestorMock
                     .Setup(requestor => requestor.RequestPostCodeLookup(postCode, requestState))
@@ -232,13 +232,13 @@
 
                 this.parserMock
                     .Setup(parser => parser.IsWithinBoundary(previousRequestResult.Value!))
-                    .Returns(isSupported);
+                    .Returns(Result.Ok(isSupported));
                 this.parserMock
                     .Setup(parser => parser.ExtractRequestState(previousRequestResult.Value!))
-                    .Returns(requestState);
+                    .Returns(Result.Ok(requestState));
                 this.parserMock
                     .Setup(parser => parser.ExtractUprn(previousRequestResult.Value!))
-                    .Returns(uprn);
+                    .Returns(Result.Ok(uprn));
 
                 this.requestorMock
                     .Setup(requestor => requestor.RequestUprnLookup(uprn, requestState))
@@ -254,7 +254,7 @@
 
                 this.parserMock
                     .Setup(parser => parser.ExtractRequestState(previousRequestResult.Value!))
-                    .Returns(requestState);
+                    .Returns(Result.Ok(requestState));
 
                 this.requestorMock
                     .Setup(requestor => requestor.RequestCollectionsLookup(requestState))
@@ -269,10 +269,10 @@
 
                 this.parserMock
                     .Setup(parser => parser.DoesCollectAtAddress(previousRequestResult.Value!))
-                    .Returns(doesDoCollections);
+                    .Returns(Result.Ok(doesDoCollections));
                 this.parserMock
                     .Setup(parser => parser.ExtractCollections(previousRequestResult.Value!))
-                    .Returns(collections);
+                    .Returns(Result.Ok(collections));
             }
         }
     }

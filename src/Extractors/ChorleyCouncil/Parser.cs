@@ -109,7 +109,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
                 collections.AddRange(ProcessMonthRow(rowNode));
             }
 
-            return collections;
+            return Result.Ok(collections.AsEnumerable());
         }
 
         private static IEnumerable<Collection> ProcessMonthRow(HtmlNode rowNode)
