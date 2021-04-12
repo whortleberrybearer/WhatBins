@@ -33,17 +33,17 @@
         {
             Result<HtmlDocument> requestResult = this.requestor.RequestCollectionsPage();
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ProcessCollectionsPageAndContinue(postCode, requestResult.Value!);
+            return EnsureRequestSucceeded(requestResult, () => this.ProcessCollectionsPageAndContinue(postCode, requestResult.Value!));
         }
 
-        private static Result<Collection>? EnsureRequestSucceeded(Result<HtmlDocument> requestResult)
+        private static Result<Collection> EnsureRequestSucceeded(Result<HtmlDocument> requestResult, Func<Result<Collection>> nextAction)
         {
             if (requestResult.IsFailed)
             {
                 return requestResult.ToResult<Collection>();
             }
 
-            return null;
+            return nextAction();
         }
 
         private Result<Collection> ProcessCollectionsPageAndContinue(PostCode postCode, HtmlDocument htmlDocument)
@@ -59,7 +59,7 @@
                 postCode,
                 extractStateResult.Value);
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ProcessPostCodeLookupAndContinue(requestResult.Value!);
+            return EnsureRequestSucceeded(requestResult, () => this.ProcessPostCodeLookupAndContinue(requestResult.Value!));
         }
 
         private Result<Collection> ProcessPostCodeLookupAndContinue(HtmlDocument htmlDocument)
@@ -95,7 +95,7 @@
                 extractUprnResult.Value,
                 extractStateResult.Value);
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ProcessUprnLookupAndContinue(requestResult.Value!);
+            return EnsureRequestSucceeded(requestResult, () => this.ProcessUprnLookupAndContinue(requestResult.Value!));
         }
 
         private Result<Collection> ProcessUprnLookupAndContinue(HtmlDocument htmlDocument)
@@ -109,7 +109,7 @@
 
             Result<HtmlDocument> requestResult = this.requestor.RequestCollectionsLookup(extractStateResult.Value);
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ExtractCollections(requestResult.Value!);
+            return EnsureRequestSucceeded(requestResult, () => this.ExtractCollections(requestResult.Value!));
         }
 
         private Result<Collection> ExtractCollections(HtmlDocument htmlDocument)
