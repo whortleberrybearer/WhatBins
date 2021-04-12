@@ -88,7 +88,7 @@ namespace WhatBins.Tests
             public void ShouldReturnResultWhenSupportedCollectionFound(CollectionState collectionState)
             {
                 PostCode postCode = new PostCodeFaker().Generate();
-                IEnumerable<Collection> collections = new CollectionFaker().Generate(new Faker().Random.Number(1, 5));
+                IEnumerable<CollectionDay> collectionDays = new CollectionDayFaker().Generate(new Faker().Random.Number(1, 5));
 
                 foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
                 {
@@ -104,11 +104,11 @@ namespace WhatBins.Tests
                     .Returns(Result.Ok(CollectionExtraction.Unsupported));
                 this.collectionExtractorMocks[1]
                     .Setup(extractor => extractor.Extract(postCode))
-                    .Returns(Result.Ok(new CollectionExtraction(collections)));
+                    .Returns(Result.Ok(new CollectionExtraction(collectionDays)));
 
                 Result<CollectionExtraction> result = this.sut.Lookup(postCode);
 
-                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new CollectionExtraction(collections));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new CollectionExtraction(collectionDays));
             }
         }
     }

@@ -24,11 +24,11 @@
             [Fact]
             public void ShouldSetCollections()
             {
-                IEnumerable<Collection> collections = new CollectionFaker().Generate(3);
+                IEnumerable<CollectionDay> collectionDays = new CollectionDayFaker().Generate(3);
 
-                CollectionExtraction result = new CollectionExtraction(collections);
+                CollectionExtraction result = new CollectionExtraction(collectionDays);
 
-                result.Collections.Should().BeEquivalentTo(collections);
+                result.CollectionDays.Should().BeEquivalentTo(collectionDays);
             }
         }
     }

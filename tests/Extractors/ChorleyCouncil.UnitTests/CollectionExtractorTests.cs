@@ -167,7 +167,7 @@
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
-                this.SetupExtractCollectionsMocks(postCode, false, Enumerable.Empty<Collection>());
+                this.SetupExtractCollectionsMocks(postCode, false, Enumerable.Empty<CollectionDay>());
 
                 Result<CollectionExtraction> result = this.sut.Extract(postCode);
 
@@ -179,7 +179,7 @@
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
-                this.SetupExtractCollectionsMocks(postCode, true, Enumerable.Empty<Collection>());
+                this.SetupExtractCollectionsMocks(postCode, true, Enumerable.Empty<CollectionDay>());
 
                 Result<CollectionExtraction> result = this.sut.Extract(postCode);
 
@@ -190,9 +190,9 @@
             public void ShouldReturnCollectionsWhenCollectionsExtracted()
             {
                 PostCode postCode = new PostCodeFaker().Generate();
-                IEnumerable<Collection> collections = new CollectionFaker().Generate(3);
+                IEnumerable<CollectionDay> collectionDays = new CollectionDayFaker().Generate(3);
 
-                this.SetupExtractCollectionsMocks(postCode, true, collections);
+                this.SetupExtractCollectionsMocks(postCode, true, collectionDays);
 
                 Result<CollectionExtraction> result = this.sut.Extract(postCode);
 
@@ -261,7 +261,7 @@
                     .Returns(result);
             }
 
-            private void SetupExtractCollectionsMocks(PostCode postCode, bool doesDoCollections, IEnumerable<Collection> collections)
+            private void SetupExtractCollectionsMocks(PostCode postCode, bool doesDoCollections, IEnumerable<CollectionDay> collections)
             {
                 Result<HtmlDocument> previousRequestResult = Result.Ok(new HtmlDocument());
 

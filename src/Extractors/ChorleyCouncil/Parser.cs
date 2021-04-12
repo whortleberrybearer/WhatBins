@@ -94,25 +94,25 @@ namespace WhatBins.Extractors.ChorleyCouncil
             return Result.Ok(new Uprn(selectedOption.GetAttributeValue("value", string.Empty)));
         }
 
-        public Result<IEnumerable<Collection>> ExtractCollections(HtmlDocument htmlDocument)
+        public Result<IEnumerable<CollectionDay>> ExtractCollections(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
                 throw new ArgumentNullException(nameof(htmlDocument));
             }
 
-            List<Collection> collections = new List<Collection>();
+            List<CollectionDay> collectionDays = new List<CollectionDay>();
 
             // All the collections are stored in a table, with a month per row, then dates per column.
             foreach (HtmlNode rowNode in htmlDocument.DocumentNode.SelectNodes(".//table[contains(@class, \"WasteCollection\")]/tr"))
             {
-                collections.AddRange(ProcessMonthRow(rowNode));
+                collectionDays.AddRange(ProcessMonthRow(rowNode));
             }
 
-            return Result.Ok(collections.AsEnumerable());
+            return Result.Ok(collectionDays.AsEnumerable());
         }
 
-        private static IEnumerable<Collection> ProcessMonthRow(HtmlNode rowNode)
+        private static IEnumerable<CollectionDay> ProcessMonthRow(HtmlNode rowNode)
         {
             HtmlNode dateColumn = rowNode.SelectSingleNode("td[1]");
             ParseResult<LocalDate> monthParseResult = MonthPattern.Parse(dateColumn.InnerText);
@@ -123,15 +123,15 @@ namespace WhatBins.Extractors.ChorleyCouncil
 
                 // As we can not get the month, don't continue to parse the row.  It is likely that the rest of the table wont parse as well,
                 // resulting in no collections.
-                return Enumerable.Empty<Collection>();
+                return Enumerable.Empty<CollectionDay>();
             }
 
             return ProcessDayColumns(rowNode.SelectNodes("td[position()>1]"), monthParseResult.Value);
         }
 
-        private static IEnumerable<Collection> ProcessDayColumns(HtmlNodeCollection dayColumnNodes, LocalDate monthDate)
+        private static IEnumerable<CollectionDay> ProcessDayColumns(HtmlNodeCollection dayColumnNodes, LocalDate monthDate)
         {
-            List<Collection> collections = new List<Collection>();
+            List<CollectionDay> collectionDays = new List<CollectionDay>();
 
             foreach (HtmlNode dayColumnNode in dayColumnNodes)
             {
@@ -146,7 +146,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
                         // to the 2nd of the month instead of the 1st without the subtract.
                         LocalDate collectionDate = monthDate.Plus(Period.FromDays(day - 1));
 
-                        collections.Add(new Collection(collectionDate, ProcessDayColumn(dayColumnNode)));
+                        collectionDays.Add(new CollectionDay(collectionDate, ProcessDayColumn(dayColumnNode)));
                     }
                     else
                     {
@@ -161,7 +161,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
                 }
             }
 
-            return collections;
+            return collectionDays;
         }
 
         private static IEnumerable<Bin> ProcessDayColumn(HtmlNode dayColumnNode)

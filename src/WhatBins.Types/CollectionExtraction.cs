@@ -7,24 +7,24 @@
 
     public class CollectionExtraction
     {
-        public CollectionExtraction(IEnumerable<Collection> collections)
-            : this(CollectionState.Collection, collections)
+        public CollectionExtraction(IEnumerable<CollectionDay> collectionDays)
+            : this(CollectionState.Collection, collectionDays)
         {
         }
 
         private CollectionExtraction(CollectionState state)
-            : this(state, Enumerable.Empty<Collection>())
+            : this(state, Enumerable.Empty<CollectionDay>())
         {
         }
 
-        private CollectionExtraction(CollectionState state, IEnumerable<Collection> collections)
+        private CollectionExtraction(CollectionState state, IEnumerable<CollectionDay> collectionDays)
         {
-            if (collections is null)
+            if (collectionDays is null)
             {
-                throw new ArgumentNullException(nameof(collections));
+                throw new ArgumentNullException(nameof(collectionDays));
             }
 
-            this.Collections = new ReadOnlyCollection<Collection>(collections.ToList());
+            this.CollectionDays = new ReadOnlyCollection<CollectionDay>(collectionDays.ToList());
             this.State = state;
         }
 
@@ -34,6 +34,6 @@
 
         public CollectionState State { get; }
 
-        public IEnumerable<Collection> Collections { get; }
+        public IEnumerable<CollectionDay> CollectionDays { get; }
     }
 }

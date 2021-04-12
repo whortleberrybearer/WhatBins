@@ -5,9 +5,9 @@
     using System.Linq;
     using NodaTime;
 
-    public class Collection
+    public class CollectionDay
     {
-        public Collection(LocalDate date, IEnumerable<Bin> bins)
+        public CollectionDay(LocalDate date, IEnumerable<Bin> bins)
         {
             this.Bins = bins?.ToList().AsReadOnly() ?? throw new ArgumentNullException(nameof(bins));
             this.Date = date;

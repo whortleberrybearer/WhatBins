@@ -57,7 +57,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
                 using (new AssertionScope())
                 {
                     result.Value.State.Should().Be(CollectionState.Collection);
-                    result.Value.Collections.Should().NotBeEmpty();
+                    result.Value.CollectionDays.Should().NotBeEmpty();
                 }
             }
         }

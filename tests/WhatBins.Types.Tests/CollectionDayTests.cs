@@ -10,7 +10,7 @@
     using WhatBins.Types.Fakes;
     using Xunit;
 
-    public class CollectionTests
+    public class CollectionDayTests
     {
         public class ConstructorTests
         {
@@ -20,7 +20,7 @@
                 LocalDate date = LocalDate.FromDateTime(new Faker().Date.Soon());
                 IEnumerable<Bin> bins = new BinFaker().Generate(3);
 
-                Collection result = new Collection(date, bins);
+                CollectionDay result = new CollectionDay(date, bins);
 
                 using (new AssertionScope())
                 {
@@ -34,7 +34,7 @@
             {
                 LocalDate date = LocalDate.FromDateTime(new Faker().Date.Soon());
 
-                Action a = () => new Collection(date, null!);
+                Action a = () => new CollectionDay(date, null!);
 
                 a.Should().Throw<ArgumentNullException>();
             }

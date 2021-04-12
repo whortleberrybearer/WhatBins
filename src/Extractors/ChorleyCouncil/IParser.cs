@@ -9,7 +9,7 @@
     {
         Result<bool> DoesCollectAtAddress(HtmlDocument htmlDocument);
 
-        Result<IEnumerable<Collection>> ExtractCollections(HtmlDocument htmlDocument);
+        Result<IEnumerable<CollectionDay>> ExtractCollections(HtmlDocument htmlDocument);
 
         Result<RequestState> ExtractRequestState(HtmlDocument htmlDocument);
 

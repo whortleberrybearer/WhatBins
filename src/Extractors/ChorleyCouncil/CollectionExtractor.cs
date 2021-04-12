@@ -129,15 +129,15 @@
                 return Result.Ok(CollectionExtraction.NoCollection);
             }
 
-            Result<IEnumerable<Collection>> collectionsResult = this.parser.ExtractCollections(htmlDocument);
+            Result<IEnumerable<CollectionDay>> collectionDaysResult = this.parser.ExtractCollections(htmlDocument);
 
-            if (collectionsResult.IsFailed)
+            if (collectionDaysResult.IsFailed)
             {
-                return collectionsResult.ToResult<CollectionExtraction>();
+                return collectionDaysResult.ToResult<CollectionExtraction>();
             }
 
             // It shouldn't happen, but id there are no collections returned, set the state as no collections.
-            return Result.Ok(collectionsResult.Value.Any() ? new CollectionExtraction(collectionsResult.Value) : CollectionExtraction.NoCollection);
+            return Result.Ok(collectionDaysResult.Value.Any() ? new CollectionExtraction(collectionDaysResult.Value) : CollectionExtraction.NoCollection);
         }
     }
 }

@@ -184,19 +184,19 @@
             [Fact]
             public void ShouldExtractCollections()
             {
-                Result<IEnumerable<Collection>> result = this.sut.ExtractCollections(CollectionsHtmlDocument);
+                Result<IEnumerable<CollectionDay>> result = this.sut.ExtractCollections(CollectionsHtmlDocument);
 
-                var expectedResult = new Collection[]
+                var expectedResult = new CollectionDay[]
                 {
-                    new Collection(new LocalDate(2021, 3, 23), new Bin[] { new Bin(BinColour.Blue) }),
-                    new Collection(new LocalDate(2021, 3, 30), new Bin[] { new Bin(BinColour.Green) }),
-                    new Collection(new LocalDate(2021, 4, 6), new Bin[] { new Bin(BinColour.Blue), new Bin(BinColour.Brown) }),
-                    new Collection(new LocalDate(2021, 4, 13), new Bin[] { new Bin(BinColour.Green) }),
-                    new Collection(new LocalDate(2021, 4, 20), new Bin[] { new Bin(BinColour.Blue) }),
-                    new Collection(new LocalDate(2021, 4, 27), new Bin[] { new Bin(BinColour.Green) }),
-                    new Collection(new LocalDate(2021, 5, 4), new Bin[] { new Bin(BinColour.Blue), new Bin(BinColour.Brown) }),
-                    new Collection(new LocalDate(2021, 5, 11), new Bin[] { new Bin(BinColour.Green) }),
-                    new Collection(new LocalDate(2021, 5, 18), new Bin[] { new Bin(BinColour.Blue) }),
+                    new CollectionDay(new LocalDate(2021, 3, 23), new Bin[] { new Bin(BinColour.Blue) }),
+                    new CollectionDay(new LocalDate(2021, 3, 30), new Bin[] { new Bin(BinColour.Green) }),
+                    new CollectionDay(new LocalDate(2021, 4, 6), new Bin[] { new Bin(BinColour.Blue), new Bin(BinColour.Brown) }),
+                    new CollectionDay(new LocalDate(2021, 4, 13), new Bin[] { new Bin(BinColour.Green) }),
+                    new CollectionDay(new LocalDate(2021, 4, 20), new Bin[] { new Bin(BinColour.Blue) }),
+                    new CollectionDay(new LocalDate(2021, 4, 27), new Bin[] { new Bin(BinColour.Green) }),
+                    new CollectionDay(new LocalDate(2021, 5, 4), new Bin[] { new Bin(BinColour.Blue), new Bin(BinColour.Brown) }),
+                    new CollectionDay(new LocalDate(2021, 5, 11), new Bin[] { new Bin(BinColour.Green) }),
+                    new CollectionDay(new LocalDate(2021, 5, 18), new Bin[] { new Bin(BinColour.Blue) }),
                 };
 
                 result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(expectedResult);
