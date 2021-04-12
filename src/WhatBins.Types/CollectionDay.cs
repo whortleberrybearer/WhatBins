@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using NodaTime;
 
@@ -9,7 +10,12 @@
     {
         public CollectionDay(LocalDate date, IEnumerable<Bin> bins)
         {
-            this.Bins = bins?.ToList().AsReadOnly() ?? throw new ArgumentNullException(nameof(bins));
+            if (bins is null)
+            {
+                throw new ArgumentNullException(nameof(bins));
+            }
+
+            this.Bins = new ReadOnlyCollection<Bin>(bins.ToList());
             this.Date = date;
         }
 

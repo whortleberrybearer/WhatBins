@@ -49,31 +49,37 @@ namespace WhatBins.Extractors.ChorleyCouncil
                 throw new ArgumentNullException(nameof(htmlDocument));
             }
 
+            Result<RequestState> result = new Result<RequestState>();
             HtmlNode? viewStateNode = htmlDocument.GetElementbyId("__VIEWSTATE");
 
             if (viewStateNode is null)
             {
-                Result.Fail("ViewState node not found.");
+                result = result.WithError("ViewState node not found.");
             }
 
             HtmlNode? viewStateGeneratorNode = htmlDocument.GetElementbyId("__VIEWSTATEGENERATOR");
 
             if (viewStateGeneratorNode is null)
             {
-                Result.Fail("ViewStateGenerator node not found.");
+                result = result.WithError("ViewStateGenerator node not found.");
             }
 
             HtmlNode? eventValidationNode = htmlDocument.GetElementbyId("__EVENTVALIDATION");
 
             if (eventValidationNode is null)
             {
-                Result.Fail("EventValidation node not found.");
+                result = result.WithError("EventValidation node not found.");
+            }
+
+            if (result.IsFailed)
+            {
+                return result;
             }
 
             return Result.Ok(new RequestState(
-                viewStateNode.GetAttributeValue("value", string.Empty),
-                viewStateGeneratorNode.GetAttributeValue("value", string.Empty),
-                eventValidationNode.GetAttributeValue("value", string.Empty)));
+                viewStateNode!.GetAttributeValue("value", string.Empty),
+                viewStateGeneratorNode!.GetAttributeValue("value", string.Empty),
+                eventValidationNode!.GetAttributeValue("value", string.Empty)));
         }
 
         public Result<Uprn> ExtractUprn(HtmlDocument htmlDocument)

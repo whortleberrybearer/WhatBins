@@ -40,10 +40,7 @@
         {
             if (requestResult.IsFailed)
             {
-                // We have failed with our initial request, so just report as unsupported at this time.
-                // It may be the page is no longer available.
-                // TODO: Log failure of request
-                return Result.Ok(Collection.Unsupported);
+                return requestResult.ToResult<Collection>();
             }
 
             return null;
