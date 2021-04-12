@@ -16,7 +16,7 @@
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenCollectionsIsNull()
             {
-                Action a = () => new CollectionExtraction(null!);
+                Action a = () => new Collection(null!);
 
                 a.Should().Throw<ArgumentNullException>();
             }
@@ -26,7 +26,7 @@
             {
                 IEnumerable<CollectionDay> collectionDays = new CollectionDayFaker().Generate(3);
 
-                CollectionExtraction result = new CollectionExtraction(collectionDays);
+                Collection result = new Collection(collectionDays);
 
                 result.CollectionDays.Should().BeEquivalentTo(collectionDays);
             }

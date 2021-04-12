@@ -14,7 +14,7 @@
             this.collectionExtractors = collectionExtractors ?? throw new ArgumentNullException(nameof(collectionExtractors));
         }
 
-        public Result<CollectionExtraction> Lookup(PostCode postCode)
+        public Result<Collection> Lookup(PostCode postCode)
         {
             foreach (ICollectionExtractor collectionExtractor in this.collectionExtractors)
             {
@@ -22,7 +22,7 @@
 
                 if (canExtractResult.IsSuccess && canExtractResult.Value)
                 {
-                    Result<CollectionExtraction> extractResult = collectionExtractor.Extract(postCode);
+                    Result<Collection> extractResult = collectionExtractor.Extract(postCode);
 
                     if (extractResult.IsSuccess && (extractResult.Value.State != CollectionState.Unsupported))
                     {
@@ -42,7 +42,7 @@
 
             // As we have failed to make a successful extraction, the postcode must be unsupported.
             // TODO: Is this correct?
-            return Result.Ok(CollectionExtraction.Unsupported);
+            return Result.Ok(Collection.Unsupported);
         }
     }
 }

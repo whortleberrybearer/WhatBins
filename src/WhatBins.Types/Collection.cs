@@ -5,19 +5,19 @@
     using System.Collections.ObjectModel;
     using System.Linq;
 
-    public class CollectionExtraction
+    public class Collection
     {
-        public CollectionExtraction(IEnumerable<CollectionDay> collectionDays)
+        public Collection(IEnumerable<CollectionDay> collectionDays)
             : this(CollectionState.Collection, collectionDays)
         {
         }
 
-        private CollectionExtraction(CollectionState state)
+        private Collection(CollectionState state)
             : this(state, Enumerable.Empty<CollectionDay>())
         {
         }
 
-        private CollectionExtraction(CollectionState state, IEnumerable<CollectionDay> collectionDays)
+        private Collection(CollectionState state, IEnumerable<CollectionDay> collectionDays)
         {
             if (collectionDays is null)
             {
@@ -28,9 +28,9 @@
             this.State = state;
         }
 
-        public static CollectionExtraction Unsupported { get; } = new CollectionExtraction(CollectionState.Unsupported);
+        public static Collection Unsupported { get; } = new Collection(CollectionState.Unsupported);
 
-        public static CollectionExtraction NoCollection { get; } = new CollectionExtraction(CollectionState.NoCollection);
+        public static Collection NoCollection { get; } = new Collection(CollectionState.NoCollection);
 
         public CollectionState State { get; }
 

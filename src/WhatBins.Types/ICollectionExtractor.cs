@@ -4,7 +4,7 @@
 
     public interface ICollectionExtractor
     {
-        Result<CollectionExtraction> Extract(PostCode postCode);
+        Result<Collection> Extract(PostCode postCode);
 
         Result<bool> CanExtract(PostCode postCode);
     }
