@@ -24,9 +24,9 @@
                 {
                     Result<Collection> extractResult = collectionExtractor.Extract(postCode);
 
+                    // If the result is unsupported, we have not found the correct extractor to check, so keep checking.
                     if (extractResult.IsSuccess && (extractResult.Value.State != CollectionState.Unsupported))
                     {
-                        // If the result is unsupported, we have not found the correct extractor to check, so keep checking.
                         return extractResult;
                     }
                     else if (extractResult.IsFailed)
@@ -41,7 +41,6 @@
             }
 
             // As we have failed to make a successful extraction, the postcode must be unsupported.
-            // TODO: Is this correct?
             return Result.Ok(Collection.Unsupported);
         }
     }

@@ -68,7 +68,6 @@
             settings.Converters.Add(new StringEnumConverter());
 
             // If the lookup failed, return that the lookup is unsupported.
-            // TODO: Is this correct?
             await context.Response.WriteAsync(
                 JsonConvert.SerializeObject(lookupResult.ValueOrDefault ?? Collection.Unsupported, settings));
         }
