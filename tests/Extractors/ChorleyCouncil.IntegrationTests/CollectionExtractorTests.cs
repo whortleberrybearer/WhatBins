@@ -25,8 +25,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
-                // TODO: Could be a value object compare?
-                result.Should().BeSuccess().And.Subject.Value.State.Should().Be(CollectionState.Unsupported);
+                result.Should().BeSuccess().And.HaveValue(Collection.Unsupported);
             }
 
             [Theory]
@@ -38,8 +37,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
-                // TODO: Could be a value object compare?
-                result.Should().BeSuccess().And.Subject.Value.State.Should().Be(CollectionState.NoCollection);
+                result.Should().BeSuccess().And.HaveValue(Collection.NoCollection);
             }
 
             [Theory]
@@ -51,7 +49,6 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
-                // TODO: Could be a value object compare?
                 result.Should().BeSuccess();
 
                 using (new AssertionScope())

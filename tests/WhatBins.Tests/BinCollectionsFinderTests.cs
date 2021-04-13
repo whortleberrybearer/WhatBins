@@ -42,6 +42,15 @@ namespace WhatBins.Tests
                 this.sut = new BinCollectionsFinder(this.collectionExtractorMocks.Select(mock => mock.Object));
             }
 
+            public static IEnumerable<object[]> SupportedCollectionResults()
+            {
+                return new List<object[]>()
+                {
+                    new object[] { Collection.NoCollection },
+                    new object[] { new Collection(new CollectionDayFaker().Generate(new Faker().Random.Number(1, 5))) },
+                };
+            }
+
             [Fact]
             public void ShouldReturnUnsupportedWhenPostCodeCanNotBeExtracted()
             {
@@ -83,12 +92,10 @@ namespace WhatBins.Tests
             }
 
             [Theory]
-            [InlineData(CollectionState.Collection)]
-            [InlineData(CollectionState.NoCollection)]
-            public void ShouldReturnResultWhenSupportedCollectionFound(CollectionState collectionState)
+            [MemberData(nameof(SupportedCollectionResults))]
+            public void ShouldReturnResultWhenSupportedCollectionFound(Collection collection)
             {
                 PostCode postCode = new PostCodeFaker().Generate();
-                IEnumerable<CollectionDay> collectionDays = new CollectionDayFaker().Generate(new Faker().Random.Number(1, 5));
 
                 foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
                 {
@@ -104,11 +111,11 @@ namespace WhatBins.Tests
                     .Returns(Result.Ok(Collection.Unsupported));
                 this.collectionExtractorMocks[1]
                     .Setup(extractor => extractor.Extract(postCode))
-                    .Returns(Result.Ok(new Collection(collectionDays)));
+                    .Returns(Result.Ok(collection));
 
                 Result<Collection> result = this.sut.Lookup(postCode);
 
-                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new Collection(collectionDays));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(collection);
             }
         }
     }
