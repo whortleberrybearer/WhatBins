@@ -5,7 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
 
-    public class Collection
+    public struct Collection
     {
         public Collection(IEnumerable<CollectionDay> collectionDays)
             : this(CollectionState.Collection, collectionDays)
@@ -35,5 +35,35 @@
         public CollectionState State { get; }
 
         public IEnumerable<CollectionDay> CollectionDays { get; }
+
+        public static bool operator ==(Collection left, Collection right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Collection left, Collection right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Collection collection)
+            {
+                return this.Equals(collection);
+            }
+
+            return false;
+        }
+
+        public bool Equals(Collection collection)
+        {
+            return (this.State == collection.State) && this.CollectionDays.SequenceEqual(collection.CollectionDays);
+        }
+
+        public override int GetHashCode()
+        {
+            return new { this.State, this.CollectionDays }.GetHashCode();
+        }
     }
 }

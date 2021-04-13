@@ -69,7 +69,7 @@
 
             // If the lookup failed, return that the lookup is unsupported.
             await context.Response.WriteAsync(
-                JsonConvert.SerializeObject(lookupResult.ValueOrDefault ?? Collection.Unsupported, settings));
+                JsonConvert.SerializeObject(lookupResult.IsSuccess ? lookupResult.Value : Collection.Unsupported, settings));
         }
     }
 }

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Bogus;
     using FluentAssertions;
     using FluentResults;
     using FluentResults.Extensions.FluentAssertions;
@@ -101,7 +100,7 @@
             }
 
             [Fact]
-            public void ShouldReturnUnsupportedWhenPageRequestFails()
+            public void ShouldReturnFailureWhenPageRequestFails()
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
@@ -109,11 +108,11 @@
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
-                result.Should().BeSuccess().And.HaveValue(Collection.Unsupported);
+                result.Should().BeFailure();
             }
 
             [Fact]
-            public void ShouldReturnUnsupportedWhenPostCodeLookupRequestFails()
+            public void ShouldReturnFailureWhenPostCodeLookupRequestFails()
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
@@ -121,7 +120,7 @@
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
-                result.Should().BeSuccess().And.HaveValue(Collection.Unsupported);
+                result.Should().BeFailure();
             }
 
             [Fact]
@@ -137,7 +136,7 @@
             }
 
             [Fact]
-            public void ShouldReturnUnsupportedWhenUprnLookupRequestFails()
+            public void ShouldReturnFailureWhenUprnLookupRequestFails()
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
@@ -145,11 +144,11 @@
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
-                result.Should().BeSuccess().And.HaveValue(Collection.Unsupported);
+                result.Should().BeFailure();
             }
 
             [Fact]
-            public void ShouldReturnUnsupportedWhenCollectionsLookupRequestFails()
+            public void ShouldReturnFailureWhenCollectionsLookupRequestFails()
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
@@ -157,7 +156,7 @@
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
-                result.Should().BeSuccess().And.HaveValue(Collection.Unsupported);
+                result.Should().BeFailure();
             }
 
             [Fact]
