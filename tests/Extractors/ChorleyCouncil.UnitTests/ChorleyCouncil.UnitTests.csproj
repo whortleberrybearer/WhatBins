@@ -51,6 +51,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="RequestResponses\CollectionsWithInvalidDate.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="RequestResponses\CollectionsWithInvalidMonth.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="RequestResponses\Collections.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

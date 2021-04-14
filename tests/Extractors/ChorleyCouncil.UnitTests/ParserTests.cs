@@ -16,6 +16,8 @@
         private static readonly HtmlDocument NotSupportedHtmlDocument = InitialiseHtmlDocument("RequestResponses//NotSupported.html");
         private static readonly HtmlDocument NoCollectionsHtmlDocument = InitialiseHtmlDocument("RequestResponses//NoCollections.html");
         private static readonly HtmlDocument CollectionsHtmlDocument = InitialiseHtmlDocument("RequestResponses//Collections.html");
+        private static readonly HtmlDocument CollectionsWithInvalidMonthHtmlDocument = InitialiseHtmlDocument("RequestResponses//CollectionsWithInvalidMonth.html");
+        private static readonly HtmlDocument CollectionsWithInvalidDateHtmlDocument = InitialiseHtmlDocument("RequestResponses//CollectionsWithInvalidDate.html");
         private static readonly HtmlDocument CollectionsPageHtmlDocument = InitialiseHtmlDocument("RequestResponses//CollectionsPage.html");
         private static readonly HtmlDocument UprnLookupHtmlDocument = InitialiseHtmlDocument("RequestResponses//UprnLookup.html");
         private static readonly HtmlDocument CollectionsLookupHtmlDocument = InitialiseHtmlDocument("RequestResponses//CollectionsLookup.html");
@@ -251,6 +253,22 @@
                 Action a = () => this.sut.ExtractCollections(null!);
 
                 a.Should().Throw<ArgumentNullException>();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenInvalidMonthFound()
+            {
+                Result<IEnumerable<CollectionDay>> result = this.sut.ExtractCollections(CollectionsWithInvalidMonthHtmlDocument);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenInvalidDateFound()
+            {
+                Result<IEnumerable<CollectionDay>> result = this.sut.ExtractCollections(CollectionsWithInvalidDateHtmlDocument);
+
+                result.Should().BeFailure();
             }
 
             [Fact]
