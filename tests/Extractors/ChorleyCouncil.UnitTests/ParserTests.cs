@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Text;
     using FluentAssertions;
     using FluentResults;
     using FluentResults.Extensions.FluentAssertions;
@@ -146,6 +147,67 @@
 
                 result.Should().BeSuccess().And.HaveValue(expectedResult);
             }
+
+            [Fact]
+            public void ShouldReturnFailureWhenViewStateMissing()
+            {
+                HtmlDocument htmlDocument = CreateFakeHtmlDocument(includeViewState: false);
+
+                Result<RequestState> result = this.sut.ExtractRequestState(htmlDocument);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenViewStateGeneratorMissing()
+            {
+                HtmlDocument htmlDocument = CreateFakeHtmlDocument(includeViewStateGenerator: false);
+
+                Result<RequestState> result = this.sut.ExtractRequestState(htmlDocument);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenEventValidationMissing()
+            {
+                HtmlDocument htmlDocument = CreateFakeHtmlDocument(includeEventValidation: false);
+
+                Result<RequestState> result = this.sut.ExtractRequestState(htmlDocument);
+
+                result.Should().BeFailure();
+            }
+
+            private static HtmlDocument CreateFakeHtmlDocument(
+                bool includeViewState = true,
+                bool includeViewStateGenerator = true,
+                bool includeEventValidation = true)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.Append("<html>");
+
+                if (includeViewState)
+                {
+                    stringBuilder.Append("<input id=\"__VIEWSTATE\" value=\"\" />");
+                }
+
+                if (includeViewStateGenerator)
+                {
+                    stringBuilder.Append("><input id=\"__VIEWSTATEGENERATOR\" value=\"\" />");
+                }
+
+                if (includeEventValidation)
+                {
+                    stringBuilder.Append("<input id=\"__EVENTVALIDATION\" value=\"\" />");
+                }
+
+                stringBuilder.Append("</html>");
+
+                HtmlDocument htmlDocument = new HtmlDocument();
+                htmlDocument.LoadHtml(stringBuilder.ToString());
+
+                return htmlDocument;
+            }
         }
 
         public class ExtractUprnTests
@@ -158,6 +220,16 @@
                 Action a = () => this.sut.ExtractUprn(null!);
 
                 a.Should().Throw<ArgumentNullException>();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenUprnNotDefined()
+            {
+                HtmlDocument htmlDocument = new HtmlDocument();
+
+                Result<Uprn> result = this.sut.ExtractUprn(htmlDocument);
+
+                result.Should().BeFailure();
             }
 
             [Fact]
