@@ -112,6 +112,18 @@
             }
 
             [Fact]
+            public void ShouldReturnFailureWhenPageResponseHasNoState()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                this.SetupRequestPostCodeLookupMocks(postCode, Result.Fail<HtmlDocument>(string.Empty), hasRequestState: false);
+
+                Result<Collection> result = this.sut.Extract(postCode);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
             public void ShouldReturnFailureWhenPostCodeLookupRequestFails()
             {
                 PostCode postCode = new PostCodeFaker().Generate();
@@ -124,11 +136,35 @@
             }
 
             [Fact]
+            public void ShouldReturnFailureWhenIsSupportedParseFails()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                this.SetupRequestUprnLookupMocks(postCode, isSupportedResult: Result.Fail<bool>(string.Empty));
+
+                Result<Collection> result = this.sut.Extract(postCode);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenUprnParseFails()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                this.SetupRequestUprnLookupMocks(postCode, extractUprnResult: Result.Fail<Uprn>(string.Empty));
+
+                Result<Collection> result = this.sut.Extract(postCode);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
             public void ShouldReturnUnsupportedWhenPostCodeNotSupported()
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
-                this.SetupRequestUprnLookupMocks(postCode, false, Result.Fail<HtmlDocument>(string.Empty));
+                this.SetupRequestUprnLookupMocks(postCode, isSupportedResult: Result.Ok(false));
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
@@ -136,11 +172,35 @@
             }
 
             [Fact]
+            public void ShouldReturnFailureWhenPostCodePageResponseHasNoState()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                this.SetupRequestUprnLookupMocks(postCode, hasRequestState: false);
+
+                Result<Collection> result = this.sut.Extract(postCode);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
             public void ShouldReturnFailureWhenUprnLookupRequestFails()
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
-                this.SetupRequestUprnLookupMocks(postCode, true, Result.Fail<HtmlDocument>(string.Empty));
+                this.SetupRequestUprnLookupMocks(postCode, result: Result.Fail<HtmlDocument>(string.Empty));
+
+                Result<Collection> result = this.sut.Extract(postCode);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenUrpnPageResponseHasNoState()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                this.SetupRequestCollectionLookupsMocks(postCode, Result.Fail<HtmlDocument>(string.Empty), hasRequestState: false);
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
@@ -164,7 +224,7 @@
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
-                this.SetupExtractCollectionsMocks(postCode, false, Enumerable.Empty<CollectionDay>());
+                this.SetupExtractCollectionsMocks(postCode, Result.Ok(false));
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
@@ -176,7 +236,7 @@
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
-                this.SetupExtractCollectionsMocks(postCode, true, Enumerable.Empty<CollectionDay>());
+                this.SetupExtractCollectionsMocks(postCode, collectionExtractionsResult: Result.Ok(Enumerable.Empty<CollectionDay>()));
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
@@ -189,11 +249,47 @@
                 PostCode postCode = new PostCodeFaker().Generate();
                 IEnumerable<CollectionDay> collectionDays = new CollectionDayFaker().Generate(3);
 
-                this.SetupExtractCollectionsMocks(postCode, true, collectionDays);
+                this.SetupExtractCollectionsMocks(postCode, collectionExtractionsResult: Result.Ok(collectionDays));
 
                 Result<Collection> result = this.sut.Extract(postCode);
 
                 result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(new Collection(collectionDays));
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenDoesDoCollectionExtractionsFail()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                this.SetupExtractCollectionsMocks(postCode, doesDoCollectionsResult: Result.Fail<bool>(string.Empty));
+
+                Result<Collection> result = this.sut.Extract(postCode);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenCollectionExtractionsFail()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                this.SetupExtractCollectionsMocks(
+                    postCode,
+                    collectionExtractionsResult: Result.Fail<IEnumerable<CollectionDay>>(string.Empty));
+
+                Result<Collection> result = this.sut.Extract(postCode);
+
+                result.Should().BeFailure();
+            }
+
+            private static Result<RequestState> CreateRequestStateResult(bool isFailure)
+            {
+                if (isFailure)
+                {
+                    return Result.Fail<RequestState>(string.Empty);
+                }
+
+                return Result.Ok(new RequestStateFaker().Generate());
             }
 
             private void SetupRequestPageMocks(Result<HtmlDocument> result)
@@ -203,73 +299,105 @@
                     .Returns(result);
             }
 
-            private void SetupRequestPostCodeLookupMocks(PostCode postCode, Result<HtmlDocument> result)
+            private void SetupRequestPostCodeLookupMocks(PostCode postCode, Result<HtmlDocument> result, bool hasRequestState = true)
             {
-                RequestState requestState = new RequestStateFaker().Generate();
+                Result<RequestState> requestStateResult = CreateRequestStateResult(!hasRequestState);
                 Result<HtmlDocument> previousRequestResult = Result.Ok(new HtmlDocument());
 
                 this.SetupRequestPageMocks(previousRequestResult);
 
                 this.parserMock
-                    .Setup(parser => parser.ExtractRequestState(previousRequestResult.Value!))
-                    .Returns(Result.Ok(requestState));
+                    .Setup(parser => parser.ExtractRequestState(previousRequestResult.ValueOrDefault))
+                    .Returns(requestStateResult);
 
                 this.requestorMock
-                    .Setup(requestor => requestor.RequestPostCodeLookup(postCode, requestState))
+                    .Setup(requestor => requestor.RequestPostCodeLookup(postCode, requestStateResult.ValueOrDefault))
                     .Returns(result);
             }
 
-            private void SetupRequestUprnLookupMocks(PostCode postCode, bool isSupported, Result<HtmlDocument> result)
+            private void SetupRequestUprnLookupMocks(
+                PostCode postCode,
+                Result<bool>? isSupportedResult = null,
+                Result<Uprn>? extractUprnResult = null,
+                Result<HtmlDocument>? result = null,
+                bool hasRequestState = true)
             {
-                Uprn uprn = new UprnFaker().Generate();
-                RequestState requestState = new RequestStateFaker().Generate();
+                if (isSupportedResult is null)
+                {
+                    isSupportedResult = Result.Ok(true);
+                }
+
+                if (extractUprnResult is null)
+                {
+                    extractUprnResult = Result.Ok(new UprnFaker().Generate());
+                }
+
+                if (result is null)
+                {
+                    result = Result.Ok(new HtmlDocument());
+                }
+
+                Result<RequestState> requestStateResult = CreateRequestStateResult(!hasRequestState);
                 Result<HtmlDocument> previousRequestResult = Result.Ok(new HtmlDocument());
 
                 this.SetupRequestPostCodeLookupMocks(postCode, previousRequestResult);
 
                 this.parserMock
-                    .Setup(parser => parser.IsWithinBoundary(previousRequestResult.Value!))
-                    .Returns(Result.Ok(isSupported));
+                    .Setup(parser => parser.IsWithinBoundary(previousRequestResult.ValueOrDefault))
+                    .Returns(isSupportedResult);
                 this.parserMock
-                    .Setup(parser => parser.ExtractRequestState(previousRequestResult.Value!))
-                    .Returns(Result.Ok(requestState));
+                    .Setup(parser => parser.ExtractRequestState(previousRequestResult.ValueOrDefault))
+                    .Returns(requestStateResult);
                 this.parserMock
-                    .Setup(parser => parser.ExtractUprn(previousRequestResult.Value!))
-                    .Returns(Result.Ok(uprn));
+                    .Setup(parser => parser.ExtractUprn(previousRequestResult.ValueOrDefault))
+                    .Returns(extractUprnResult);
 
                 this.requestorMock
-                    .Setup(requestor => requestor.RequestUprnLookup(uprn, requestState))
+                    .Setup(requestor => requestor.RequestUprnLookup(extractUprnResult.ValueOrDefault, requestStateResult.ValueOrDefault))
                     .Returns(result);
             }
 
-            private void SetupRequestCollectionLookupsMocks(PostCode postCode, Result<HtmlDocument> result)
+            private void SetupRequestCollectionLookupsMocks(PostCode postCode, Result<HtmlDocument> result, bool hasRequestState = true)
             {
-                RequestState requestState = new RequestStateFaker().Generate();
+                Result<RequestState> requestStateResult = CreateRequestStateResult(!hasRequestState);
                 Result<HtmlDocument> previousRequestResult = Result.Ok(new HtmlDocument());
 
-                this.SetupRequestUprnLookupMocks(postCode, true, previousRequestResult);
+                this.SetupRequestUprnLookupMocks(postCode, result: previousRequestResult);
 
                 this.parserMock
-                    .Setup(parser => parser.ExtractRequestState(previousRequestResult.Value!))
-                    .Returns(Result.Ok(requestState));
+                    .Setup(parser => parser.ExtractRequestState(previousRequestResult.ValueOrDefault))
+                    .Returns(requestStateResult);
 
                 this.requestorMock
-                    .Setup(requestor => requestor.RequestCollectionsLookup(requestState))
+                    .Setup(requestor => requestor.RequestCollectionsLookup(requestStateResult.ValueOrDefault))
                     .Returns(result);
             }
 
-            private void SetupExtractCollectionsMocks(PostCode postCode, bool doesDoCollections, IEnumerable<CollectionDay> collections)
+            private void SetupExtractCollectionsMocks(
+                PostCode postCode,
+                Result<bool>? doesDoCollectionsResult = null,
+                Result<IEnumerable<CollectionDay>>? collectionExtractionsResult = null)
             {
+                if (doesDoCollectionsResult is null)
+                {
+                    doesDoCollectionsResult = Result.Ok(true);
+                }
+
+                if (collectionExtractionsResult is null)
+                {
+                    collectionExtractionsResult = Result.Ok(new CollectionDayFaker().Generate(3).AsEnumerable());
+                }
+
                 Result<HtmlDocument> previousRequestResult = Result.Ok(new HtmlDocument());
 
                 this.SetupRequestCollectionLookupsMocks(postCode, previousRequestResult);
 
                 this.parserMock
-                    .Setup(parser => parser.DoesCollectAtAddress(previousRequestResult.Value!))
-                    .Returns(Result.Ok(doesDoCollections));
+                    .Setup(parser => parser.DoesCollectAtAddress(previousRequestResult.ValueOrDefault))
+                    .Returns(doesDoCollectionsResult);
                 this.parserMock
-                    .Setup(parser => parser.ExtractCollections(previousRequestResult.Value!))
-                    .Returns(Result.Ok(collections));
+                    .Setup(parser => parser.ExtractCollections(previousRequestResult.ValueOrDefault))
+                    .Returns(collectionExtractionsResult);
             }
         }
     }
