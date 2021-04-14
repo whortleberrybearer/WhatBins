@@ -120,8 +120,8 @@ namespace WhatBins.Extractors.ChorleyCouncil
 
         private static IEnumerable<CollectionDay> ProcessMonthRow(HtmlNode rowNode)
         {
-            HtmlNode dateColumn = rowNode.SelectSingleNode("td[1]");
-            ParseResult<LocalDate> monthParseResult = MonthPattern.Parse(dateColumn.InnerText);
+            HtmlNode? dateColumn = rowNode.SelectSingleNode("td[1]");
+            ParseResult<LocalDate> monthParseResult = MonthPattern.Parse(dateColumn?.InnerText!);
 
             if (!monthParseResult.Success)
             {
@@ -142,9 +142,9 @@ namespace WhatBins.Extractors.ChorleyCouncil
             foreach (HtmlNode dayColumnNode in dayColumnNodes)
             {
                 // The date is stored on a separate paragraph, followed by the bin images.
-                HtmlNode dayTextNode = dayColumnNode.SelectSingleNode("p");
+                HtmlNode? dayTextNode = dayColumnNode.SelectSingleNode("p");
 
-                if (dayTextNode.InnerText.Trim() != string.Empty)
+                if (!string.IsNullOrEmpty(dayTextNode?.InnerText?.Trim()))
                 {
                     if (int.TryParse(dayColumnNode.InnerText.Trim(), out int day))
                     {

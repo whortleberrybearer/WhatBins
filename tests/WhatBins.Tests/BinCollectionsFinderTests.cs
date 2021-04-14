@@ -117,6 +117,44 @@ namespace WhatBins.Tests
 
                 result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(collection);
             }
+
+            [Fact]
+            public void ShouldContinueCheckingWhenLookupFails()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
+                {
+                    collectionExtractorMock
+                        .Setup(extractor => extractor.CanExtract(postCode))
+                        .Returns(Result.Ok(true));
+
+                    collectionExtractorMock
+                        .Setup(extractor => extractor.Extract(postCode))
+                        .Returns(Result.Fail<Collection>(string.Empty));
+                }
+
+                this.sut.Lookup(postCode);
+
+                this.mockRepository.VerifyAll();
+            }
+
+            [Fact]
+            public void ShouldContinueCheckingWhenCanExtractFails()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
+                {
+                    collectionExtractorMock
+                        .Setup(extractor => extractor.CanExtract(postCode))
+                        .Returns(Result.Fail<bool>(string.Empty));
+                }
+
+                this.sut.Lookup(postCode);
+
+                this.mockRepository.VerifyAll();
+            }
         }
     }
 }
