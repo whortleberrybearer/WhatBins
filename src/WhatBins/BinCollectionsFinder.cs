@@ -1,17 +1,27 @@
-﻿#pragma warning disable S1135 // Track uses of "TODO" tags
-namespace WhatBins
+﻿namespace WhatBins
 {
     using System;
     using System.Collections.Generic;
     using FluentResults;
+    using Serilog;
+    using Serilog.Core;
     using WhatBins.Types;
 
     public class BinCollectionsFinder : IBinCollectionsFinder
     {
+        private readonly ILogger log;
         private readonly IEnumerable<ICollectionExtractor> collectionExtractors;
 
         public BinCollectionsFinder(IEnumerable<ICollectionExtractor> collectionExtractors)
+            : this(Logger.None, collectionExtractors)
         {
+        }
+
+        public BinCollectionsFinder(
+            ILogger log,
+            IEnumerable<ICollectionExtractor> collectionExtractors)
+        {
+            this.log = log ?? Logger.None;
             this.collectionExtractors = collectionExtractors ?? throw new ArgumentNullException(nameof(collectionExtractors));
         }
 
@@ -46,4 +56,3 @@ namespace WhatBins
         }
     }
 }
-#pragma warning restore S1135 // Track uses of "TODO" tags
