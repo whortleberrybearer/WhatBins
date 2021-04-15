@@ -1,15 +1,17 @@
 ﻿namespace WhatBins.Extractors.ChorleyCouncil
 {
+    using FluentResults;
+    using HtmlAgilityPack;
     using WhatBins.Types;
 
     public interface IRequestor
     {
-        RequestResult RequestCollectionsPage();
+        Result<HtmlDocument> RequestCollectionsPage();
 
-        RequestResult RequestPostCodeLookup(PostCode postCode, RequestState requestState);
+        Result<HtmlDocument> RequestPostCodeLookup(PostCode postCode, RequestState requestState);
 
-        RequestResult RequestUprnLookup(Uprn uprn, RequestState requestState);
+        Result<HtmlDocument> RequestUprnLookup(Uprn uprn, RequestState requestState);
 
-        RequestResult RequestCollectionsLookup(RequestState requestState);
+        Result<HtmlDocument> RequestCollectionsLookup(RequestState requestState);
     }
 }

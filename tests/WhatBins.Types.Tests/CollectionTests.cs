@@ -2,10 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using Bogus;
     using FluentAssertions;
-    using FluentAssertions.Execution;
-    using NodaTime;
     using WhatBins.Types;
     using WhatBins.Types.Fakes;
     using Xunit;
@@ -15,28 +12,21 @@
         public class ConstructorTests
         {
             [Fact]
-            public void ShouldSetStateAndBins()
+            public void ShouldThrowArgumentNullExceptionWhenCollectionsIsNull()
             {
-                LocalDate date = LocalDate.FromDateTime(new Faker().Date.Soon());
-                IEnumerable<Bin> bins = new BinFaker().Generate(3);
+                Action a = () => new Collection(null!);
 
-                Collection result = new Collection(date, bins);
-
-                using (new AssertionScope())
-                {
-                    result.Date.Should().Be(date);
-                    result.Bins.Should().BeEquivalentTo(bins);
-                }
+                a.Should().Throw<ArgumentNullException>();
             }
 
             [Fact]
-            public void ShouldThrowArgumentNullExceptionWhenCollectionsIsNull()
+            public void ShouldSetCollections()
             {
-                LocalDate date = LocalDate.FromDateTime(new Faker().Date.Soon());
+                IEnumerable<CollectionDay> collectionDays = new CollectionDayFaker().Generate(3);
 
-                Action a = () => new Collection(date, null!);
+                Collection result = new Collection(collectionDays);
 
-                a.Should().Throw<ArgumentNullException>();
+                result.CollectionDays.Should().BeEquivalentTo(collectionDays);
             }
         }
     }

@@ -1,8 +1,9 @@
-﻿namespace WhatBins
+﻿#pragma warning disable S1135 // Track uses of "TODO" tags
+namespace WhatBins
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using FluentResults;
     using WhatBins.Types;
 
     public class BinCollectionsFinder : IBinCollectionsFinder
@@ -14,22 +15,35 @@
             this.collectionExtractors = collectionExtractors ?? throw new ArgumentNullException(nameof(collectionExtractors));
         }
 
-        public LookupResult Lookup(PostCode postCode)
+        public Result<Collection> Lookup(PostCode postCode)
         {
-            ExtractResult? result = null;
-
-            foreach (ICollectionExtractor collectionExtractor in this.collectionExtractors.Where(extractor => extractor.CanExtract(postCode)))
+            foreach (ICollectionExtractor collectionExtractor in this.collectionExtractors)
             {
-                result = collectionExtractor.Extract(postCode);
+                Result<bool> canExtractResult = collectionExtractor.CanExtract(postCode);
 
-                // If the result is unsupported, we have not found the correct extractor to check, so keep checking.
-                if (result.State != CollectionState.Unsupported)
+                if (canExtractResult.IsSuccess && canExtractResult.Value)
                 {
-                    break;
+                    Result<Collection> extractResult = collectionExtractor.Extract(postCode);
+
+                    // If the result is unsupported, we have not found the correct extractor to check, so keep checking.
+                    if (extractResult.IsSuccess && (extractResult.Value.State != CollectionState.Unsupported))
+                    {
+                        return extractResult;
+                    }
+                    else if (extractResult.IsFailed)
+                    {
+                        // TODO: Log any failures.
+                    }
+                }
+                else if (canExtractResult.IsFailed)
+                {
+                    // TODO: Log any failures.
                 }
             }
 
-            return result?.ToLookupResult() ?? new LookupResult(CollectionState.Unsupported);
+            // As we have failed to make a successful extraction, the postcode must be unsupported.
+            return Result.Ok(Collection.Unsupported);
         }
     }
 }
+#pragma warning restore S1135 // Track uses of "TODO" tags

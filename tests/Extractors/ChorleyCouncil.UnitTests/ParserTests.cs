@@ -2,7 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Text;
     using FluentAssertions;
+    using FluentResults;
+    using FluentResults.Extensions.FluentAssertions;
     using HtmlAgilityPack;
     using NodaTime;
     using WhatBins.Types;
@@ -13,6 +16,8 @@
         private static readonly HtmlDocument NotSupportedHtmlDocument = InitialiseHtmlDocument("RequestResponses//NotSupported.html");
         private static readonly HtmlDocument NoCollectionsHtmlDocument = InitialiseHtmlDocument("RequestResponses//NoCollections.html");
         private static readonly HtmlDocument CollectionsHtmlDocument = InitialiseHtmlDocument("RequestResponses//Collections.html");
+        private static readonly HtmlDocument CollectionsWithInvalidMonthHtmlDocument = InitialiseHtmlDocument("RequestResponses//CollectionsWithInvalidMonth.html");
+        private static readonly HtmlDocument CollectionsWithInvalidDateHtmlDocument = InitialiseHtmlDocument("RequestResponses//CollectionsWithInvalidDate.html");
         private static readonly HtmlDocument CollectionsPageHtmlDocument = InitialiseHtmlDocument("RequestResponses//CollectionsPage.html");
         private static readonly HtmlDocument UprnLookupHtmlDocument = InitialiseHtmlDocument("RequestResponses//UprnLookup.html");
         private static readonly HtmlDocument CollectionsLookupHtmlDocument = InitialiseHtmlDocument("RequestResponses//CollectionsLookup.html");
@@ -49,18 +54,18 @@
             [Fact]
             public void ShouldReturnFalseWhenDocumentContainsExpectedText()
             {
-                bool result = this.sut.IsWithinBoundary(NotSupportedHtmlDocument);
+                Result<bool> result = this.sut.IsWithinBoundary(NotSupportedHtmlDocument);
 
-                result.Should().BeFalse();
+                result.Should().BeSuccess().And.Subject.Value.Should().BeFalse();
             }
 
             [Theory]
             [MemberData(nameof(SupportedHtmlDocuments))]
             public void ShouldReturnTrueWhenDocumentDoesNotContainsExpectedText(HtmlDocument htmlDocument)
             {
-                bool result = this.sut.IsWithinBoundary(htmlDocument);
+                Result<bool> result = this.sut.IsWithinBoundary(htmlDocument);
 
-                result.Should().BeTrue();
+                result.Should().BeSuccess().And.Subject.Value.Should().BeTrue();
             }
         }
 
@@ -79,17 +84,17 @@
             [Fact]
             public void ShouldReturnFalseWhenDocumentContainsExpectedText()
             {
-                bool result = this.sut.DoesCollectAtAddress(NoCollectionsHtmlDocument);
+                Result<bool> result = this.sut.DoesCollectAtAddress(NoCollectionsHtmlDocument);
 
-                result.Should().BeFalse();
+                result.Should().BeSuccess().And.Subject.Value.Should().BeFalse();
             }
 
             [Fact]
             public void ShouldReturnTrueWhenDocumentDoesNotContainsExpectedText()
             {
-                bool result = this.sut.DoesCollectAtAddress(CollectionsHtmlDocument);
+                Result<bool> result = this.sut.DoesCollectAtAddress(CollectionsHtmlDocument);
 
-                result.Should().BeTrue();
+                result.Should().BeSuccess().And.Subject.Value.Should().BeTrue();
             }
         }
 
@@ -140,9 +145,70 @@
             [MemberData(nameof(HtmlDocuments))]
             public void ShouldExtractRequestStates(HtmlDocument htmlDocument, RequestState expectedResult)
             {
-                RequestState result = this.sut.ExtractRequestState(htmlDocument);
+                Result<RequestState> result = this.sut.ExtractRequestState(htmlDocument);
 
-                result.Should().Be(expectedResult);
+                result.Should().BeSuccess().And.HaveValue(expectedResult);
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenViewStateMissing()
+            {
+                HtmlDocument htmlDocument = CreateFakeHtmlDocument(includeViewState: false);
+
+                Result<RequestState> result = this.sut.ExtractRequestState(htmlDocument);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenViewStateGeneratorMissing()
+            {
+                HtmlDocument htmlDocument = CreateFakeHtmlDocument(includeViewStateGenerator: false);
+
+                Result<RequestState> result = this.sut.ExtractRequestState(htmlDocument);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenEventValidationMissing()
+            {
+                HtmlDocument htmlDocument = CreateFakeHtmlDocument(includeEventValidation: false);
+
+                Result<RequestState> result = this.sut.ExtractRequestState(htmlDocument);
+
+                result.Should().BeFailure();
+            }
+
+            private static HtmlDocument CreateFakeHtmlDocument(
+                bool includeViewState = true,
+                bool includeViewStateGenerator = true,
+                bool includeEventValidation = true)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.Append("<html>");
+
+                if (includeViewState)
+                {
+                    stringBuilder.Append("<input id=\"__VIEWSTATE\" value=\"\" />");
+                }
+
+                if (includeViewStateGenerator)
+                {
+                    stringBuilder.Append("><input id=\"__VIEWSTATEGENERATOR\" value=\"\" />");
+                }
+
+                if (includeEventValidation)
+                {
+                    stringBuilder.Append("<input id=\"__EVENTVALIDATION\" value=\"\" />");
+                }
+
+                stringBuilder.Append("</html>");
+
+                HtmlDocument htmlDocument = new HtmlDocument();
+                htmlDocument.LoadHtml(stringBuilder.ToString());
+
+                return htmlDocument;
             }
         }
 
@@ -159,11 +225,21 @@
             }
 
             [Fact]
+            public void ShouldReturnFailureWhenUprnNotDefined()
+            {
+                HtmlDocument htmlDocument = new HtmlDocument();
+
+                Result<Uprn> result = this.sut.ExtractUprn(htmlDocument);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
             public void ShouldExtractUprn()
             {
-                Uprn result = this.sut.ExtractUprn(UprnLookupHtmlDocument);
+                Result<Uprn> result = this.sut.ExtractUprn(UprnLookupHtmlDocument);
 
-                result.Should().Be(new Uprn("UPRN100010362948"));
+                result.Should().BeSuccess().And.HaveValue(new Uprn("UPRN100010362948"));
             }
         }
 
@@ -180,24 +256,40 @@
             }
 
             [Fact]
+            public void ShouldReturnFailureWhenInvalidMonthFound()
+            {
+                Result<IEnumerable<CollectionDay>> result = this.sut.ExtractCollections(CollectionsWithInvalidMonthHtmlDocument);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
+            public void ShouldReturnFailureWhenInvalidDateFound()
+            {
+                Result<IEnumerable<CollectionDay>> result = this.sut.ExtractCollections(CollectionsWithInvalidDateHtmlDocument);
+
+                result.Should().BeFailure();
+            }
+
+            [Fact]
             public void ShouldExtractCollections()
             {
-                IEnumerable<Collection> result = this.sut.ExtractCollections(CollectionsHtmlDocument);
+                Result<IEnumerable<CollectionDay>> result = this.sut.ExtractCollections(CollectionsHtmlDocument);
 
-                var expectedResult = new Collection[]
+                var expectedResult = new CollectionDay[]
                 {
-                    new Collection(new LocalDate(2021, 3, 23), new Bin[] { new Bin(BinColour.Blue) }),
-                    new Collection(new LocalDate(2021, 3, 30), new Bin[] { new Bin(BinColour.Green) }),
-                    new Collection(new LocalDate(2021, 4, 6), new Bin[] { new Bin(BinColour.Blue), new Bin(BinColour.Brown) }),
-                    new Collection(new LocalDate(2021, 4, 13), new Bin[] { new Bin(BinColour.Green) }),
-                    new Collection(new LocalDate(2021, 4, 20), new Bin[] { new Bin(BinColour.Blue) }),
-                    new Collection(new LocalDate(2021, 4, 27), new Bin[] { new Bin(BinColour.Green) }),
-                    new Collection(new LocalDate(2021, 5, 4), new Bin[] { new Bin(BinColour.Blue), new Bin(BinColour.Brown) }),
-                    new Collection(new LocalDate(2021, 5, 11), new Bin[] { new Bin(BinColour.Green) }),
-                    new Collection(new LocalDate(2021, 5, 18), new Bin[] { new Bin(BinColour.Blue) }),
+                    new CollectionDay(new LocalDate(2021, 3, 23), new Bin[] { new Bin(BinColour.Blue) }),
+                    new CollectionDay(new LocalDate(2021, 3, 30), new Bin[] { new Bin(BinColour.Green) }),
+                    new CollectionDay(new LocalDate(2021, 4, 6), new Bin[] { new Bin(BinColour.Blue), new Bin(BinColour.Brown) }),
+                    new CollectionDay(new LocalDate(2021, 4, 13), new Bin[] { new Bin(BinColour.Green) }),
+                    new CollectionDay(new LocalDate(2021, 4, 20), new Bin[] { new Bin(BinColour.Blue) }),
+                    new CollectionDay(new LocalDate(2021, 4, 27), new Bin[] { new Bin(BinColour.Green) }),
+                    new CollectionDay(new LocalDate(2021, 5, 4), new Bin[] { new Bin(BinColour.Blue), new Bin(BinColour.Brown) }),
+                    new CollectionDay(new LocalDate(2021, 5, 11), new Bin[] { new Bin(BinColour.Green) }),
+                    new CollectionDay(new LocalDate(2021, 5, 18), new Bin[] { new Bin(BinColour.Blue) }),
                 };
 
-                result.Should().BeEquivalentTo(expectedResult);
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(expectedResult);
             }
         }
     }

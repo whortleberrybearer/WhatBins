@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using FluentResults;
     using HtmlAgilityPack;
     using WhatBins.Types;
 
@@ -23,73 +24,117 @@
             this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
         }
 
-        public bool CanExtract(PostCode postCode)
+        public Result<bool> CanExtract(PostCode postCode)
         {
-            return CouncilPostCodeAreas.Contains(postCode.Outcode);
+            return Result.Ok(CouncilPostCodeAreas.Contains(postCode.Outcode));
         }
 
-        public ExtractResult Extract(PostCode postCode)
+        public Result<Collection> Extract(PostCode postCode)
         {
-            RequestResult requestResult = this.requestor.RequestCollectionsPage();
+            Result<HtmlDocument> requestResult = this.requestor.RequestCollectionsPage();
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ProcessCollectionsPageAndContinue(postCode, requestResult.HtmlDocument!);
+            return EnsureRequestSucceeded(requestResult, () => this.ProcessCollectionsPageAndContinue(postCode, requestResult.Value!));
         }
 
-        private static ExtractResult? EnsureRequestSucceeded(RequestResult requestResult)
+        private static Result<Collection> EnsureRequestSucceeded(Result<HtmlDocument> requestResult, Func<Result<Collection>> nextAction)
         {
-            if (!requestResult.Success)
+            if (requestResult.IsFailed)
             {
-                // We have failed with our initial request, so just report as unsupported at this time.
-                // It may be the page is no longer available.
-                return new ExtractResult(CollectionState.Unsupported);
+                return requestResult.ToResult<Collection>();
             }
 
-            return null;
+            return nextAction();
         }
 
-        private ExtractResult ProcessCollectionsPageAndContinue(PostCode postCode, HtmlDocument htmlDocument)
+        private Result<Collection> ProcessCollectionsPageAndContinue(PostCode postCode, HtmlDocument htmlDocument)
         {
-            RequestResult requestResult = this.requestor.RequestPostCodeLookup(
+            Result<RequestState> extractStateResult = this.parser.ExtractRequestState(htmlDocument);
+
+            if (extractStateResult.IsFailed)
+            {
+                return extractStateResult.ToResult<Collection>();
+            }
+
+            Result<HtmlDocument> requestResult = this.requestor.RequestPostCodeLookup(
                 postCode,
-                this.parser.ExtractRequestState(htmlDocument));
+                extractStateResult.Value);
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ProcessPostCodeLookupAndContinue(requestResult.HtmlDocument!);
+            return EnsureRequestSucceeded(requestResult, () => this.ProcessPostCodeLookupAndContinue(requestResult.Value!));
         }
 
-        private ExtractResult ProcessPostCodeLookupAndContinue(HtmlDocument htmlDocument)
+        private Result<Collection> ProcessPostCodeLookupAndContinue(HtmlDocument htmlDocument)
         {
-            if (!this.parser.IsWithinBoundary(htmlDocument))
+            Result<bool> isWithinBoundaryResult = this.parser.IsWithinBoundary(htmlDocument);
+
+            if (isWithinBoundaryResult.IsFailed)
+            {
+                return isWithinBoundaryResult.ToResult<Collection>();
+            }
+
+            if (!isWithinBoundaryResult.Value)
             {
                 // Response indicates the post code is not in the area.
-                return new ExtractResult(CollectionState.Unsupported);
+                return Result.Ok(Collection.Unsupported);
             }
 
-            RequestResult requestResult = this.requestor.RequestUprnLookup(
-                this.parser.ExtractUprn(htmlDocument),
-                this.parser.ExtractRequestState(htmlDocument));
+            Result<RequestState> extractStateResult = this.parser.ExtractRequestState(htmlDocument);
 
-            return EnsureRequestSucceeded(requestResult) ?? this.ProcessUprnLookupAndContinue(requestResult.HtmlDocument!);
-        }
-
-        private ExtractResult ProcessUprnLookupAndContinue(HtmlDocument htmlDocument)
-        {
-            RequestResult requestResult = this.requestor.RequestCollectionsLookup(
-                this.parser.ExtractRequestState(htmlDocument));
-
-            return EnsureRequestSucceeded(requestResult) ?? this.ExtractCollections(requestResult.HtmlDocument!);
-        }
-
-        private ExtractResult ExtractCollections(HtmlDocument htmlDocument)
-        {
-            if (!this.parser.DoesCollectAtAddress(htmlDocument))
+            if (extractStateResult.IsFailed)
             {
-                return new ExtractResult(CollectionState.NoCollection);
+                return extractStateResult.ToResult<Collection>();
             }
 
-            IEnumerable<Collection> collections = this.parser.ExtractCollections(htmlDocument);
+            Result<Uprn> extractUprnResult = this.parser.ExtractUprn(htmlDocument);
+
+            if (extractUprnResult.IsFailed)
+            {
+                return extractUprnResult.ToResult<Collection>();
+            }
+
+            Result<HtmlDocument> requestResult = this.requestor.RequestUprnLookup(
+                extractUprnResult.Value,
+                extractStateResult.Value);
+
+            return EnsureRequestSucceeded(requestResult, () => this.ProcessUprnLookupAndContinue(requestResult.Value!));
+        }
+
+        private Result<Collection> ProcessUprnLookupAndContinue(HtmlDocument htmlDocument)
+        {
+            Result<RequestState> extractStateResult = this.parser.ExtractRequestState(htmlDocument);
+
+            if (extractStateResult.IsFailed)
+            {
+                return extractStateResult.ToResult<Collection>();
+            }
+
+            Result<HtmlDocument> requestResult = this.requestor.RequestCollectionsLookup(extractStateResult.Value);
+
+            return EnsureRequestSucceeded(requestResult, () => this.ExtractCollections(requestResult.Value!));
+        }
+
+        private Result<Collection> ExtractCollections(HtmlDocument htmlDocument)
+        {
+            Result<bool> doesCollectResult = this.parser.DoesCollectAtAddress(htmlDocument);
+
+            if (doesCollectResult.IsFailed)
+            {
+                return doesCollectResult.ToResult<Collection>();
+            }
+
+            if (!doesCollectResult.Value)
+            {
+                return Result.Ok(Collection.NoCollection);
+            }
+
+            Result<IEnumerable<CollectionDay>> collectionDaysResult = this.parser.ExtractCollections(htmlDocument);
+
+            if (collectionDaysResult.IsFailed)
+            {
+                return collectionDaysResult.ToResult<Collection>();
+            }
 
             // It shouldn't happen, but id there are no collections returned, set the state as no collections.
-            return collections.Any() ? new ExtractResult(CollectionState.Collection, collections) : new ExtractResult(CollectionState.NoCollection);
+            return Result.Ok(collectionDaysResult.Value.Any() ? new Collection(collectionDaysResult.Value) : Collection.NoCollection);
         }
     }
 }

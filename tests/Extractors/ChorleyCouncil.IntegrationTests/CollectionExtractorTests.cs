@@ -2,6 +2,8 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
 {
     using FluentAssertions;
     using FluentAssertions.Execution;
+    using FluentResults;
+    using FluentResults.Extensions.FluentAssertions;
     using WhatBins.Extractors.ChorleyCouncil;
     using WhatBins.Types;
     using Xunit;
@@ -21,10 +23,9 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<Collection> result = this.sut.Extract(postCode);
 
-                result.Should().NotBeNull();
-                result.State.Should().Be(CollectionState.Unsupported);
+                result.Should().BeSuccess().And.HaveValue(Collection.Unsupported);
             }
 
             [Theory]
@@ -34,10 +35,9 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<Collection> result = this.sut.Extract(postCode);
 
-                result.Should().NotBeNull();
-                result.State.Should().Be(CollectionState.NoCollection);
+                result.Should().BeSuccess().And.HaveValue(Collection.NoCollection);
             }
 
             [Theory]
@@ -47,14 +47,14 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
             {
                 PostCode postCode = new PostCode(postCodeString);
 
-                ExtractResult result = this.sut.Extract(postCode);
+                Result<Collection> result = this.sut.Extract(postCode);
 
-                result.Should().NotBeNull();
+                result.Should().BeSuccess();
 
                 using (new AssertionScope())
                 {
-                    result.State.Should().Be(CollectionState.Collection);
-                    result.Collections.Should().NotBeEmpty();
+                    result.Value.State.Should().Be(CollectionState.Collection);
+                    result.Value.CollectionDays.Should().NotBeEmpty();
                 }
             }
         }

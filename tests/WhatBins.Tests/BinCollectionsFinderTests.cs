@@ -5,6 +5,8 @@ namespace WhatBins.Tests
     using System.Linq;
     using Bogus;
     using FluentAssertions;
+    using FluentResults;
+    using FluentResults.Extensions.FluentAssertions;
     using Moq;
     using WhatBins.Types;
     using WhatBins.Types.Fakes;
@@ -40,6 +42,15 @@ namespace WhatBins.Tests
                 this.sut = new BinCollectionsFinder(this.collectionExtractorMocks.Select(mock => mock.Object));
             }
 
+            public static IEnumerable<object[]> SupportedCollectionResults()
+            {
+                return new List<object[]>()
+                {
+                    new object[] { Collection.NoCollection },
+                    new object[] { new Collection(new CollectionDayFaker().Generate(new Faker().Random.Number(1, 5))) },
+                };
+            }
+
             [Fact]
             public void ShouldReturnUnsupportedWhenPostCodeCanNotBeExtracted()
             {
@@ -49,12 +60,12 @@ namespace WhatBins.Tests
                 {
                     collectionExtractorMock
                         .Setup(extractor => extractor.CanExtract(postCode))
-                        .Returns(false);
+                        .Returns(Result.Ok(false));
                 }
 
-                LookupResult result = this.sut.Lookup(postCode);
+                Result<Collection> result = this.sut.Lookup(postCode);
 
-                result.Should().BeEquivalentTo(new LookupResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(Collection.Unsupported);
             }
 
             [Fact]
@@ -66,47 +77,83 @@ namespace WhatBins.Tests
                 {
                     collectionExtractorMock
                         .Setup(extractor => extractor.CanExtract(postCode))
-                        .Returns(true);
+                        .Returns(Result.Ok(true));
 
                     collectionExtractorMock
                         .Setup(extractor => extractor.Extract(postCode))
-                        .Returns(new ExtractResult(CollectionState.Unsupported));
+                        .Returns(Result.Ok(Collection.Unsupported));
                 }
 
-                LookupResult result = this.sut.Lookup(postCode);
+                Result<Collection> result = this.sut.Lookup(postCode);
 
-                result.Should().BeEquivalentTo(new LookupResult(CollectionState.Unsupported));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(Collection.Unsupported);
 
                 this.mockRepository.VerifyAll();
             }
 
             [Theory]
-            [InlineData(CollectionState.Collection)]
-            [InlineData(CollectionState.NoCollection)]
-            public void ShouldReturnResultWhenSupportedCollectionFound(CollectionState collectionState)
+            [MemberData(nameof(SupportedCollectionResults))]
+            public void ShouldReturnResultWhenSupportedCollectionFound(Collection collection)
             {
                 PostCode postCode = new PostCodeFaker().Generate();
-                IEnumerable<Collection> collections = new CollectionFaker().Generate(new Faker().Random.Number(1, 5));
 
                 foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
                 {
                     collectionExtractorMock
                         .Setup(extractor => extractor.CanExtract(postCode))
-                        .Returns(true);
+                        .Returns(Result.Ok(true));
                 }
 
                 // Once nothing has been found for the first check, the seconds once should be returned.
                 // The third should never be called as a result was found with the second.
                 this.collectionExtractorMocks[0]
                     .Setup(extractor => extractor.Extract(postCode))
-                    .Returns(new ExtractResult(CollectionState.Unsupported));
+                    .Returns(Result.Ok(Collection.Unsupported));
                 this.collectionExtractorMocks[1]
                     .Setup(extractor => extractor.Extract(postCode))
-                    .Returns(new ExtractResult(collectionState, collections));
+                    .Returns(Result.Ok(collection));
 
-                LookupResult result = this.sut.Lookup(postCode);
+                Result<Collection> result = this.sut.Lookup(postCode);
 
-                result.Should().BeEquivalentTo(new LookupResult(collectionState, collections));
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(collection);
+            }
+
+            [Fact]
+            public void ShouldContinueCheckingWhenLookupFails()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
+                {
+                    collectionExtractorMock
+                        .Setup(extractor => extractor.CanExtract(postCode))
+                        .Returns(Result.Ok(true));
+
+                    collectionExtractorMock
+                        .Setup(extractor => extractor.Extract(postCode))
+                        .Returns(Result.Fail<Collection>(string.Empty));
+                }
+
+                this.sut.Lookup(postCode);
+
+                this.mockRepository.VerifyAll();
+            }
+
+            [Fact]
+            public void ShouldContinueCheckingWhenCanExtractFails()
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
+                {
+                    collectionExtractorMock
+                        .Setup(extractor => extractor.CanExtract(postCode))
+                        .Returns(Result.Fail<bool>(string.Empty));
+                }
+
+                this.sut.Lookup(postCode);
+
+                this.mockRepository.VerifyAll();
             }
         }
     }

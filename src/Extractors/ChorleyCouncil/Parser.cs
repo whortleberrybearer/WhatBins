@@ -5,6 +5,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using FluentResults;
     using HtmlAgilityPack;
     using NodaTime;
     using NodaTime.Text;
@@ -12,7 +13,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
 
     public class Parser : IParser
     {
-        private static readonly LocalDatePattern MonthPattern = LocalDatePattern.CreateWithInvariantCulture("MMMM yyyy");
+        private static readonly YearMonthPattern MonthPattern = YearMonthPattern.CreateWithInvariantCulture("MMMM yyyy");
         private static readonly IDictionary<string, BinColour> BinColourLookup = new Dictionary<string, BinColour>()
         {
             { "Blue%20Bin2", BinColour.Blue },
@@ -21,40 +22,67 @@ namespace WhatBins.Extractors.ChorleyCouncil
             { "Green%20Bin2", BinColour.Green },
         };
 
-        public bool IsWithinBoundary(HtmlDocument htmlDocument)
+        public Result<bool> IsWithinBoundary(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
                 throw new ArgumentNullException(nameof(htmlDocument));
             }
 
-            return !htmlDocument.ParsedText.Contains("No addresses found within Chorley Council boundaries for this address.");
+            return Result.Ok(!htmlDocument.ParsedText.Contains("No addresses found within Chorley Council boundaries for this address."));
         }
 
-        public bool DoesCollectAtAddress(HtmlDocument htmlDocument)
+        public Result<bool> DoesCollectAtAddress(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
                 throw new ArgumentNullException(nameof(htmlDocument));
             }
 
-            return !htmlDocument.ParsedText.Contains("Our records indicate that we don't collect waste from your property");
+            return Result.Ok(!htmlDocument.ParsedText.Contains("Our records indicate that we don't collect waste from your property"));
         }
 
-        public RequestState ExtractRequestState(HtmlDocument htmlDocument)
+        public Result<RequestState> ExtractRequestState(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
                 throw new ArgumentNullException(nameof(htmlDocument));
             }
 
-            return new RequestState(
-                htmlDocument.GetElementbyId("__VIEWSTATE").GetAttributeValue("value", string.Empty),
-                htmlDocument.GetElementbyId("__VIEWSTATEGENERATOR").GetAttributeValue("value", string.Empty),
-                htmlDocument.GetElementbyId("__EVENTVALIDATION").GetAttributeValue("value", string.Empty));
+            Result<RequestState> result = new Result<RequestState>();
+            HtmlNode? viewStateNode = htmlDocument.GetElementbyId("__VIEWSTATE");
+
+            if (viewStateNode is null)
+            {
+                result = result.WithError("ViewState node not found.");
+            }
+
+            HtmlNode? viewStateGeneratorNode = htmlDocument.GetElementbyId("__VIEWSTATEGENERATOR");
+
+            if (viewStateGeneratorNode is null)
+            {
+                result = result.WithError("ViewStateGenerator node not found.");
+            }
+
+            HtmlNode? eventValidationNode = htmlDocument.GetElementbyId("__EVENTVALIDATION");
+
+            if (eventValidationNode is null)
+            {
+                result = result.WithError("EventValidation node not found.");
+            }
+
+            if (result.IsFailed)
+            {
+                return result;
+            }
+
+            return Result.Ok(new RequestState(
+                viewStateNode!.GetAttributeValue("value", string.Empty),
+                viewStateGeneratorNode!.GetAttributeValue("value", string.Empty),
+                eventValidationNode!.GetAttributeValue("value", string.Empty)));
         }
 
-        public Uprn ExtractUprn(HtmlDocument htmlDocument)
+        public Result<Uprn> ExtractUprn(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
@@ -62,69 +90,80 @@ namespace WhatBins.Extractors.ChorleyCouncil
             }
 
             // This runs on the assumption that all the addresses in the post code are collected at the same time, so can just select the first.
-            HtmlNode selectedOption = htmlDocument.DocumentNode.SelectSingleNode(".//*[contains(@name, 'ctl00$MainContent$addressSearch$ddlAddress')]/option[2]");
+            HtmlNode? selectedOption = htmlDocument.DocumentNode.SelectSingleNode(".//*[contains(@name, 'ctl00$MainContent$addressSearch$ddlAddress')]/option[2]");
 
-            return new Uprn(selectedOption.GetAttributeValue("value", string.Empty));
+            if (selectedOption is null)
+            {
+                return Result.Fail("Uprn node not found.");
+            }
+
+            return Result.Ok(new Uprn(selectedOption.GetAttributeValue("value", string.Empty)));
         }
 
-        public IEnumerable<Collection> ExtractCollections(HtmlDocument htmlDocument)
+        public Result<IEnumerable<CollectionDay>> ExtractCollections(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
             {
                 throw new ArgumentNullException(nameof(htmlDocument));
             }
 
-            List<Collection> collections = new List<Collection>();
+            List<CollectionDay> collectionDays = new List<CollectionDay>();
 
             // All the collections are stored in a table, with a month per row, then dates per column.
             foreach (HtmlNode rowNode in htmlDocument.DocumentNode.SelectNodes(".//table[contains(@class, \"WasteCollection\")]/tr"))
             {
-                collections.AddRange(ProcessMonthRow(rowNode));
+                Result<IEnumerable<CollectionDay>> monthRowResult = ProcessMonthRow(rowNode);
+
+                if (monthRowResult.IsFailed)
+                {
+                    return monthRowResult;
+                }
+
+                collectionDays.AddRange(monthRowResult.Value);
             }
 
-            return collections;
+            return Result.Ok(collectionDays.AsEnumerable());
         }
 
-        private static IEnumerable<Collection> ProcessMonthRow(HtmlNode rowNode)
+        private static Result<IEnumerable<CollectionDay>> ProcessMonthRow(HtmlNode rowNode)
         {
-            HtmlNode dateColumn = rowNode.SelectSingleNode("td[1]");
-            ParseResult<LocalDate> monthParseResult = MonthPattern.Parse(dateColumn.InnerText);
+            HtmlNode? dateColumn = rowNode.SelectSingleNode("td[1]");
+            ParseResult<YearMonth> monthParseResult = MonthPattern.Parse(dateColumn?.InnerText!);
 
             if (!monthParseResult.Success)
             {
-                // TODO: Log invalid month.
-
                 // As we can not get the month, don't continue to parse the row.  It is likely that the rest of the table wont parse as well,
                 // resulting in no collections.
-                return Enumerable.Empty<Collection>();
+                return Result.Fail<IEnumerable<CollectionDay>>(new ExceptionalError(monthParseResult.Exception));
             }
 
             return ProcessDayColumns(rowNode.SelectNodes("td[position()>1]"), monthParseResult.Value);
         }
 
-        private static IEnumerable<Collection> ProcessDayColumns(HtmlNodeCollection dayColumnNodes, LocalDate monthDate)
+        private static Result<IEnumerable<CollectionDay>> ProcessDayColumns(HtmlNodeCollection dayColumnNodes, YearMonth yearMonth)
         {
-            List<Collection> collections = new List<Collection>();
+            List<CollectionDay> collectionDays = new List<CollectionDay>();
 
             foreach (HtmlNode dayColumnNode in dayColumnNodes)
             {
                 // The date is stored on a separate paragraph, followed by the bin images.
-                HtmlNode dayTextNode = dayColumnNode.SelectSingleNode("p");
+                HtmlNode? dayTextNode = dayColumnNode.SelectSingleNode("p");
 
-                if (dayTextNode.InnerText.Trim() != string.Empty)
+                if (!string.IsNullOrEmpty(dayTextNode?.InnerText?.Trim()))
                 {
-                    if (int.TryParse(dayColumnNode.InnerText.Trim(), out int day))
+                    if (!int.TryParse(dayColumnNode.InnerText.Trim(), out int day))
                     {
-                        // Need to subtract 1 from the day as the month will already be on the 1st.  So if you was 1, it would be setting it
-                        // to the 2nd of the month instead of the 1st without the subtract.
-                        LocalDate collectionDate = monthDate.Plus(Period.FromDays(day - 1));
-
-                        collections.Add(new Collection(collectionDate, ProcessDayColumn(dayColumnNode)));
+                        return Result.Fail<IEnumerable<CollectionDay>>("Invalid date");
                     }
-                    else
+
+                    try
                     {
-                        // The date is invalid, so nothing that can be done.
-                        // TODO: Log invalid date.
+                        collectionDays.Add(new CollectionDay(yearMonth.OnDayOfMonth(day), ProcessDayColumn(dayColumnNode)));
+                    }
+                    catch (ArgumentOutOfRangeException ex)
+                    {
+                        // This can happen is the day is not in the month of the year.
+                        return Result.Fail<IEnumerable<CollectionDay>>(new ExceptionalError(ex));
                     }
                 }
                 else
@@ -134,7 +173,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
                 }
             }
 
-            return collections;
+            return Result.Ok(collectionDays.AsEnumerable());
         }
 
         private static IEnumerable<Bin> ProcessDayColumn(HtmlNode dayColumnNode)

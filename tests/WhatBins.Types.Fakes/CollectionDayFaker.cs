@@ -4,15 +4,15 @@
     using NodaTime;
     using WhatBins.Types;
 
-    public class CollectionFaker : Faker<Collection>
+    public class CollectionDayFaker : Faker<CollectionDay>
     {
         private readonly BinFaker binFaker = new BinFaker();
 
-        public CollectionFaker()
+        public CollectionDayFaker()
         {
             this.StrictMode(true);
 
-            this.CustomInstantiator(faker => new Collection(LocalDate.FromDateTime(faker.Date.Soon()), this.binFaker.Generate(3)));
+            this.CustomInstantiator(faker => new CollectionDay(LocalDate.FromDateTime(faker.Date.Soon()), this.binFaker.Generate(3)));
 
             this.AssertConfigurationIsValid();
         }
