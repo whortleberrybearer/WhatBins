@@ -36,7 +36,7 @@
 
             IEnumerable<ICollectionExtractor> collectionExtractors = new ICollectionExtractor[]
             {
-                new CollectionExtractor(),
+                new CollectionExtractor(this.log),
             };
             this.binCollectionsFinder = new BinCollectionsFinder(this.log, collectionExtractors);
         }

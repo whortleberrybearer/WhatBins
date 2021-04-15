@@ -5,6 +5,7 @@
     using System.Linq;
     using FluentResults;
     using HtmlAgilityPack;
+    using Serilog;
     using WhatBins.Types;
 
     public class CollectionExtractor : ICollectionExtractor
@@ -13,8 +14,8 @@
         private readonly IParser parser;
         private readonly IRequestor requestor;
 
-        public CollectionExtractor()
-            : this(new Requestor(), new Parser())
+        public CollectionExtractor(ILogger log)
+            : this(new Requestor(), new Parser(log))
         {
         }
 

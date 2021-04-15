@@ -8,6 +8,7 @@
     using FluentResults.Extensions.FluentAssertions;
     using HtmlAgilityPack;
     using NodaTime;
+    using Serilog.Core;
     using WhatBins.Types;
     using Xunit;
 
@@ -32,7 +33,7 @@
 
         public class IsWithinBoundaryTests
         {
-            private readonly Parser sut = new Parser();
+            private readonly Parser sut = new Parser(Logger.None);
 
             public static IEnumerable<object[]> SupportedHtmlDocuments()
             {
@@ -71,7 +72,7 @@
 
         public class DoesCollectAtAddressTests
         {
-            private readonly Parser sut = new Parser();
+            private readonly Parser sut = new Parser(Logger.None);
 
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenHtmlDocumentIsNull()
@@ -100,7 +101,7 @@
 
         public class ExtractRequestStateTests
         {
-            private readonly Parser sut = new Parser();
+            private readonly Parser sut = new Parser(Logger.None);
 
             public static IEnumerable<object[]> HtmlDocuments()
             {
@@ -214,7 +215,7 @@
 
         public class ExtractUprnTests
         {
-            private readonly Parser sut = new Parser();
+            private readonly Parser sut = new Parser(Logger.None);
 
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenHtmlDocumentIsNull()
@@ -245,7 +246,7 @@
 
         public class ExtractCollectionsTests
         {
-            private readonly Parser sut = new Parser();
+            private readonly Parser sut = new Parser(Logger.None);
 
             [Fact]
             public void ShouldThrowArgumentNullExceptionWhenHtmlDocumentIsNull()

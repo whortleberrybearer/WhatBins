@@ -1,5 +1,4 @@
-﻿#pragma warning disable S1135 // Track uses of "TODO" tags
-namespace WhatBins.Extractors.ChorleyCouncil
+﻿namespace WhatBins.Extractors.ChorleyCouncil
 {
     using System;
     using System.Collections.Generic;
@@ -9,6 +8,8 @@ namespace WhatBins.Extractors.ChorleyCouncil
     using HtmlAgilityPack;
     using NodaTime;
     using NodaTime.Text;
+    using Serilog;
+    using Serilog.Core;
     using WhatBins.Types;
 
     public class Parser : IParser
@@ -21,6 +22,13 @@ namespace WhatBins.Extractors.ChorleyCouncil
             { "Brown%20Bin2", BinColour.Brown },
             { "Green%20Bin2", BinColour.Green },
         };
+
+        private readonly ILogger log;
+
+        public Parser(ILogger log)
+        {
+            this.log = log ?? Logger.None;
+        }
 
         public Result<bool> IsWithinBoundary(HtmlDocument htmlDocument)
         {
@@ -112,7 +120,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
             // All the collections are stored in a table, with a month per row, then dates per column.
             foreach (HtmlNode rowNode in htmlDocument.DocumentNode.SelectNodes(".//table[contains(@class, \"WasteCollection\")]/tr"))
             {
-                Result<IEnumerable<CollectionDay>> monthRowResult = ProcessMonthRow(rowNode);
+                Result<IEnumerable<CollectionDay>> monthRowResult = this.ProcessMonthRow(rowNode);
 
                 if (monthRowResult.IsFailed)
                 {
@@ -125,7 +133,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
             return Result.Ok(collectionDays.AsEnumerable());
         }
 
-        private static Result<IEnumerable<CollectionDay>> ProcessMonthRow(HtmlNode rowNode)
+        private Result<IEnumerable<CollectionDay>> ProcessMonthRow(HtmlNode rowNode)
         {
             HtmlNode? dateColumn = rowNode.SelectSingleNode("td[1]");
             ParseResult<YearMonth> monthParseResult = MonthPattern.Parse(dateColumn?.InnerText!);
@@ -137,10 +145,10 @@ namespace WhatBins.Extractors.ChorleyCouncil
                 return Result.Fail<IEnumerable<CollectionDay>>(new ExceptionalError(monthParseResult.Exception));
             }
 
-            return ProcessDayColumns(rowNode.SelectNodes("td[position()>1]"), monthParseResult.Value);
+            return this.ProcessDayColumns(rowNode.SelectNodes("td[position()>1]"), monthParseResult.Value);
         }
 
-        private static Result<IEnumerable<CollectionDay>> ProcessDayColumns(HtmlNodeCollection dayColumnNodes, YearMonth yearMonth)
+        private Result<IEnumerable<CollectionDay>> ProcessDayColumns(HtmlNodeCollection dayColumnNodes, YearMonth yearMonth)
         {
             List<CollectionDay> collectionDays = new List<CollectionDay>();
 
@@ -158,7 +166,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
 
                     try
                     {
-                        collectionDays.Add(new CollectionDay(yearMonth.OnDayOfMonth(day), ProcessDayColumn(dayColumnNode)));
+                        collectionDays.Add(new CollectionDay(yearMonth.OnDayOfMonth(day), this.ProcessDayColumn(dayColumnNode)));
                     }
                     catch (ArgumentOutOfRangeException ex)
                     {
@@ -176,7 +184,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
             return Result.Ok(collectionDays.AsEnumerable());
         }
 
-        private static IEnumerable<Bin> ProcessDayColumn(HtmlNode dayColumnNode)
+        private IEnumerable<Bin> ProcessDayColumn(HtmlNode dayColumnNode)
         {
             List<Bin> bins = new List<Bin>();
 
@@ -195,7 +203,7 @@ namespace WhatBins.Extractors.ChorleyCouncil
                     }
                     else
                     {
-                        // TODO: Log unknown colour.
+                        this.log.Warning("Unable to determine BinColour for fileName {fileName}", fileName);
                     }
                 }
             }
@@ -204,4 +212,3 @@ namespace WhatBins.Extractors.ChorleyCouncil
         }
     }
 }
-#pragma warning restore S1135 // Track uses of "TODO" tags
