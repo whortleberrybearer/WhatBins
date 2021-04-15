@@ -1,4 +1,5 @@
-﻿namespace WhatBins
+﻿#pragma warning disable S1135 // Track uses of "TODO" tags
+namespace WhatBins
 {
     using System;
     using System.Collections.Generic;
@@ -45,3 +46,4 @@
         }
     }
 }
+#pragma warning restore S1135 // Track uses of "TODO" tags
