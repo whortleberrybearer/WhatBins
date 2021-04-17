@@ -4,6 +4,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
     using FluentAssertions.Execution;
     using FluentResults;
     using FluentResults.Extensions.FluentAssertions;
+    using Serilog.Core;
     using WhatBins.Extractors.ChorleyCouncil;
     using WhatBins.Types;
     using Xunit;
@@ -14,7 +15,7 @@ namespace WhatBins.Extractors.ChorleyCouncil.IntegrationTests
     {
         public class LookupTests
         {
-            private readonly CollectionExtractor sut = new CollectionExtractor();
+            private readonly CollectionExtractor sut = new CollectionExtractor(Logger.None);
 
             [Theory]
             [InlineData("SW1A 1AA")]

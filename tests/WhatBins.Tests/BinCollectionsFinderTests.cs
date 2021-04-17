@@ -119,7 +119,7 @@ namespace WhatBins.Tests
             }
 
             [Fact]
-            public void ShouldContinueCheckingWhenLookupFails()
+            public void ShouldReturnFailureWhenAllLookupFails()
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
@@ -134,13 +134,15 @@ namespace WhatBins.Tests
                         .Returns(Result.Fail<Collection>(string.Empty));
                 }
 
-                this.sut.Lookup(postCode);
+                Result<Collection> result = this.sut.Lookup(postCode);
+
+                result.Should().BeFailure();
 
                 this.mockRepository.VerifyAll();
             }
 
             [Fact]
-            public void ShouldContinueCheckingWhenCanExtractFails()
+            public void ShouldReturnFailureWhenAllCanExtractFails()
             {
                 PostCode postCode = new PostCodeFaker().Generate();
 
@@ -151,9 +153,38 @@ namespace WhatBins.Tests
                         .Returns(Result.Fail<bool>(string.Empty));
                 }
 
-                this.sut.Lookup(postCode);
+                Result<Collection> result = this.sut.Lookup(postCode);
+
+                result.Should().BeFailure();
 
                 this.mockRepository.VerifyAll();
+            }
+
+            [Theory]
+            [MemberData(nameof(SupportedCollectionResults))]
+            public void ShouldReturnSuccessWhenLookupSomeFailsButSupportedCollectionFound(Collection collection)
+            {
+                PostCode postCode = new PostCodeFaker().Generate();
+
+                foreach (Mock<ICollectionExtractor> collectionExtractorMock in this.collectionExtractorMocks)
+                {
+                    collectionExtractorMock
+                        .Setup(extractor => extractor.CanExtract(postCode))
+                        .Returns(Result.Ok(true));
+                }
+
+                // Once nothing has been found for the first check, the seconds once should be returned.
+                // The third should never be called as a result was found with the second.
+                this.collectionExtractorMocks[0]
+                    .Setup(extractor => extractor.Extract(postCode))
+                    .Returns(Result.Fail<Collection>(string.Empty));
+                this.collectionExtractorMocks[1]
+                    .Setup(extractor => extractor.Extract(postCode))
+                    .Returns(Result.Ok(collection));
+
+                Result<Collection> result = this.sut.Lookup(postCode);
+
+                result.Should().BeSuccess().And.Subject.Value.Should().BeEquivalentTo(collection);
             }
         }
     }
